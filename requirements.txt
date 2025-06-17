@@ -1,0 +1,4 @@
+pyserial
+numpy
+onnxruntime
+matplotlib 
