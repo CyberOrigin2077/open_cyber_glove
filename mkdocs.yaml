@@ -1,0 +1,55 @@
+site_name: OpenCyberGlove
+site_description: "An Open-Source CyberGlove"
+
+repo_url: https://github.com/CyberOrigin2077/open_cyber_glove
+repo_name: OpenCyberGlove
+
+remote_branch: gh-pages
+
+theme:
+    icon:
+        repo: fontawesome/brands/github
+    name: material
+    favicon: imgs/logo_dark.png
+    logo: imgs/logo_with_name_dark.png
+    palette:
+        - media: "(prefers-color-scheme)"
+          toggle:
+              icon: material/brightness-auto
+              name: Switch to system preference
+        - media: "(prefers-color-scheme: light)"
+          primary: "indigo"
+          accent: "pink"
+          scheme: default
+          toggle:
+              icon: material/toggle-switch-off-outline
+              name: Switch to dark mode
+        - media: "(prefers-color-scheme: dark)"
+          primary: "deep-purple"
+          accent: "cyan"
+          scheme: slate
+          toggle:
+              icon: material/toggle-switch
+              name: Switch to light mode
+
+plugins:
+    - search
+    - mkdocstrings
+
+markdown_extensions:
+    - pymdownx.highlight
+    - pymdownx.superfences
+    - admonition
+    - pymdownx.details
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+    - Home: index.md
+    - Setup:
+        - Hardware: setup/hardware.md
+        - Software: setup/software.md
+    - Examples: examples.md 
+    - License: license.md
+    - References: references.md
