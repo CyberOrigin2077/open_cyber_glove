@@ -17,6 +17,17 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class GloveSensorData:
+    """
+    Data structure containing all sensor readings from the cyber glove.
+    
+    Attributes:
+        tensile_data: Raw tensile sensor values from 19 sensors across the glove
+        acc_data: 3-axis accelerometer data (x, y, z) in m/s²
+        gyro_data: 3-axis gyroscope data (x, y, z) in rad/s
+        mag_data: 3-axis magnetometer data (x, y, z) in μT
+        temperature: Temperature reading from the glove in Celsius
+        timestamp: Microsecond timestamp of the data packet
+    """
     tensile_data: Tuple[int, ...]
     acc_data: Tuple[float, ...]
     gyro_data: Tuple[float, ...]
@@ -26,8 +37,14 @@ class GloveSensorData:
 
 class Glove(ABC):
     """
-    SDK class for a single data glove device (left or right).
-    Handles connection, data reading, parsing, and calibration.
+    Abstract base class for cyber glove device management.
+    
+    Provides comprehensive functionality for connecting to, reading from, and calibrating
+    a single data glove (left or right hand). Handles serial communication, data parsing,
+    sensor calibration, and real-time data streaming with thread-safe operations.
+    
+    The class manages a background reader thread that continuously polls the serial port
+    and maintains a thread-safe queue of the most recent sensor data packets.
     """
     # Protocol constants
     PACKET_SIZE = 132
@@ -52,8 +69,14 @@ class Glove(ABC):
 
     def __init__(self, hand_type: str):
         """
+        Initialize a new glove instance for the specified hand.
+        
         Args:
-            hand: 'left' or 'right'
+            hand_type: Specifies which hand this glove represents ('left' or 'right')
+            
+        Note:
+            Initializes calibration arrays, data queue, and threading components.
+            The data queue can hold up to 10 seconds of data at 120 Hz sampling rate.
         """
         self.hand_type = hand_type
         self.serial_port: Optional[serial.Serial] = None
@@ -67,10 +90,26 @@ class Glove(ABC):
         self._queue_lock = threading.Lock()
 
     def connect(self, port: str, baudrate: int = DEFAULT_BAUDRATE) -> None:
-        """Connect to the glove via serial port."""
+        """
+        Establish serial connection to the glove device.
+        
+        Args:
+            port: Serial port identifier (e.g., 'COM3' on Windows, '/dev/ttyUSB0' on Linux)
+            baudrate: Communication baud rate (default: 1,000,000 bps)
+            
+        Note:
+            Opens a serial connection with 1-second timeout for read operations.
+        """
         self.serial_port = serial.Serial(port, baudrate, timeout=1)
 
     def start_reader(self):
+        """
+        Start the background data reading thread.
+        
+        Creates and starts a daemon thread that continuously reads data packets
+        from the serial port and stores them in the thread-safe data queue.
+        If a reader thread is already running, this method does nothing.
+        """
         if self._reader_thread is not None and self._reader_thread.is_alive():
             return
         self._reader_running.set()
@@ -78,12 +117,30 @@ class Glove(ABC):
         self._reader_thread.start()
 
     def stop_reader(self):
+        """
+        Stop the background data reading thread.
+        
+        Signals the reader thread to stop and waits for it to complete.
+        Cleans up the thread reference after termination.
+        """
         self._reader_running.clear()
         if self._reader_thread is not None:
             self._reader_thread.join()
             self._reader_thread = None
 
     def _reader_loop(self):
+        """
+        Main loop for the background data reading thread.
+        
+        Continuously monitors the serial port for incoming data packets.
+        When a complete packet is available, validates it using CRC checksum
+        and adds it to the thread-safe data queue. If the queue is full,
+        removes the oldest packet to make room for new data.
+        
+        Note:
+            This method runs in a separate thread and handles exceptions gracefully
+            by logging errors and continuing operation.
+        """
         while self._reader_running.is_set():
             try:
                 if self.serial_port and self.serial_port.in_waiting >= self.PACKET_SIZE:
@@ -100,7 +157,19 @@ class Glove(ABC):
                 time.sleep(0.01)
 
     def get_raw_data(self) -> bytes:
-        """Get the most recent raw data packet from the queue."""
+        """
+        Retrieve the most recent raw data packet from the queue.
+        
+        Returns:
+            The most recent complete data packet as bytes
+            
+        Raises:
+            RuntimeError: If the serial port is not connected
+            
+        Note:
+            This method blocks until at least one data packet is available.
+            It drains all packets from the queue and returns only the most recent one.
+        """
         if self.serial_port is None:
             raise RuntimeError("Serial port not connected.")
         # Wait for at least one data packet
@@ -114,7 +183,22 @@ class Glove(ABC):
         return last
 
     def parse_raw_data(self, raw: bytes) -> GloveSensorData:
-        """Parse a raw data packet into structured sensor data."""
+        """
+        Convert raw binary data packet into structured sensor data.
+        
+        Args:
+            raw: Raw binary data packet from the glove
+            
+        Returns:
+            GloveSensorData object containing parsed sensor readings
+            
+        Raises:
+            ValueError: If the raw data cannot be parsed due to format issues
+            
+        Note:
+            Parses tensile sensors, IMU data (accelerometer, gyroscope, magnetometer),
+            temperature, and timestamp according to the defined packet structure.
+        """
         try:
             tensile_data = struct.unpack(f'<{self.NUM_TENSILE_SENSORS}i', raw[self.TENSILE_DATA_OFFSET:self.TENSILE_DATA_OFFSET + self.TENSILE_DATA_SIZE])
             acc_data = struct.unpack(f'<{self.NUM_IMU_AXES}f', raw[self.ACC_DATA_OFFSET:self.ACC_DATA_OFFSET + self.ACC_DATA_SIZE])
@@ -132,6 +216,11 @@ class Glove(ABC):
             )
         except struct.error as e:
             raise ValueError(f"Failed to parse raw data: {e}")
+        
+    def get_data(self) -> GloveSensorData:
+        """Get the most recent parsed sensor data from the glove."""
+        raw_data = self.get_raw_data()
+        return self.parse_raw_data(raw_data)
 
     def calibrate(self, samples_min_max: int = 1000, samples_avg: int = 1000) -> None:
         """Calibrate the glove (min/max and static average)."""
@@ -176,6 +265,17 @@ class Glove(ABC):
 
     @staticmethod
     def _sensors_still(current, last, threshold=10) -> bool:
+        """
+        Check if sensor values are relatively stable between two consecutive readings.
+        
+        Args:
+            current: Current sensor readings as a list of integers
+            last: Previous sensor readings as a list of integers  
+            threshold: Maximum allowed difference between corresponding sensors (default: 10)
+            
+        Returns:
+            bool: True if all sensor differences are below threshold, False otherwise
+        """
         return all(abs(c - l) < threshold for c, l in zip(current, last))
 
     def _is_valid_data(self, data: bytes) -> bool:
@@ -185,7 +285,21 @@ class Glove(ABC):
         computed_crc = zlib.crc32(data[:self.CRC_DATA_SIZE]) & 0xFFFFFFFF
         return received_crc == computed_crc
 
-    # @abstractmethod
-    # def inference(self, data: GloveSensorData) -> np.ndarray:
-    #     """Abstract method for inference. To be implemented by subclasses."""
-    #     pass 
+    def inference(self, data: GloveSensorData, method="linear") -> np.ndarray:
+        """
+        Infer joint angles from sensor data using specified method.
+        
+        Args:
+            data: GloveSensorData object containing tensile sensor readings
+            method: Inference method to use ("linear" for linear mapping, "model" for ML model)
+            
+        Returns:
+            np.ndarray: Array of joint angles in radians for each finger joint
+        """
+        if method == "linear":
+            # TODO: add linear mapping implementation here
+            raise NotImplementedError
+        elif method == "model":
+            pass
+        else:
+            raise NotImplementedError
