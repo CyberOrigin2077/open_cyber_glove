@@ -35,7 +35,7 @@ python3 examples/hello_world.py
 ## Documentation
 
 ### Getting Started
-- [**Setup Guide**](setup/software.md): Detailed installation and configuration instructions
+- [**Setup Guide**](setup/user_guide_en.md): Detailed installation and configuration instructions
 - [**Hardware Guide**](setup/hardware.md): Hardware specifications and assembly guide
 - [**Examples**](examples.md): Code examples and usage tutorials
 
@@ -50,7 +50,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE) - see the [license file](license.md) for details.
+This project is licensed under the [BSD 3-Clause License](LICENSE) - see the [license file](license.md) for details.
 
 ## Citation
 
@@ -62,7 +62,7 @@ If you use OpenCyberGlove in your research, please cite our work:
   title = {OpenCyberGlove: An Open-source Data Glove for Embodied AI},
   year = {2024},
   publisher = {GitHub},
-  url = {https://github.com/CyberOrigin2077/cyber_glove_ros2_py}
+  url = {https://github.com/CyberOrigin2077/open_cyber_glove}
 }
 ```
 
@@ -71,7 +71,7 @@ If you use OpenCyberGlove in your research, please cite our work:
 
 ## Contact
 
-- GitHub Issues: [Report bugs or request features](https://github.com/CyberOrigin2077/cyber_glove_ros2_py/issues)
+- GitHub Issues: [Report bugs or request features](https://github.com/CyberOrigin2077/open_cyber_glove/issues)
 - Email: [Your contact email]
 - Discord: [Your Discord server link]
 

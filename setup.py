@@ -15,6 +15,7 @@ setup(
         "matplotlib",
         "tqdm",
         "logging"
+        "open3d"
     ],
     python_requires=">=3.7",
     url="https://github.com/your-org/open-cyber-glove",

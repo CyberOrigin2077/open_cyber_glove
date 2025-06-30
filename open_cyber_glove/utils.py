@@ -6,6 +6,12 @@ from typing import Dict, List, Tuple, Optional
 # Constants
 FINGER_NAMES = ['thumb', 'index', 'middle', 'ring', 'pinky']
 NUM_JOINTS = 21
+DEFAULT_GT_ORDER = ['index_mcp_flexion', 'index_mcp_abduction', 'index_pip_flexion', 'index_dip_flexion', 
+                    'middle_mcp_flexion', 'middle_mcp_abduction', 'middle_pip_flexion', 'middle_dip_flexion', 
+                    'ring_mcp_flexion', 'ring_mcp_abduction', 'ring_pip_flexion', 'ring_dip_flexion', 
+                    'pinky_mcp_flexion', 'pinky_mcp_abduction', 'pinky_pip_flexion', 'pinky_dip_flexion', 
+                    'thumb_mcp_flexion', 'thumb_mcp_abduction', 'thumb_pip_flexion', 'thumb_dip_flexion', 
+                    'thumb_wrist_flexion', 'thumb_wrist_abduction']
 
 def load_hand_model(hand_model_path: str) -> dict:
     """
@@ -99,7 +105,7 @@ def process_thumb_mcp(hand_model: dict, pred_angles: dict, joint_map: dict,
     
     # Get wrist coordinate system and angles
     wrist_cs = hand_model['all_coordinates'][0][0].copy()
-    joint_angles = get_nested_value(pred_angles, ['thumb', 'wrist'], {})
+    pred_angles = get_nested_value(pred_angles, ['thumb', 'wrist'], {})
     flexion = pred_angles.get('flexion', 0.0)
     abduction = pred_angles.get('abduction', 0.0)
     
@@ -173,7 +179,7 @@ def process_finger_joints(hand_model: dict, pred_angles: dict, finger: str,
         prev_cs[:3, 3] = curr_pos
         fk_rot[curr_idx, ...] = rotated_cs
 
-def forward_kinematics(hand_model: dict, pred_angles: dict) -> Tuple[np.ndarray, np.ndarray]:
+def forward_kinematics(hand_model: dict, pred_angles: dict, hand_type: str = 'right') -> Tuple[np.ndarray, np.ndarray]:
     """
     Forward kinematics for the hand model.
     """
@@ -183,11 +189,10 @@ def forward_kinematics(hand_model: dict, pred_angles: dict) -> Tuple[np.ndarray,
     
     # Extract model parameters
     joint_names = hand_model['joint_names']
-    calib_joints = hand_model['joint_pos']
-    hand_type = hand_model.get('hand_type', 'right')
+    hand_model_joint_pos = hand_model['joint_pos']
     
     # Set wrist position
-    fk_joints[0] = calib_joints[0].copy()
+    fk_joints[0] = hand_model_joint_pos[0].copy()
     
     # Build joint mapping
     joint_map = build_joint_map(joint_names)
@@ -201,7 +206,7 @@ def forward_kinematics(hand_model: dict, pred_angles: dict) -> Tuple[np.ndarray,
             mcp_name = joint_names[f_idx][1]
             mcp_key = f"{finger}_{mcp_name}"
             mcp_idx = joint_map[mcp_key]
-            fk_joints[mcp_idx] = calib_joints[mcp_idx].copy()
+            fk_joints[mcp_idx] = hand_model_joint_pos[mcp_idx].copy()
         
         # Process remaining finger joints
         process_finger_joints(hand_model, pred_angles, finger, joint_map, fk_joints, fk_rot, hand_type)

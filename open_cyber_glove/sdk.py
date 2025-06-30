@@ -1,15 +1,20 @@
 import threading
 from typing import Optional
-from .glove import Glove
+from .glove import Glove, GloveSensorData
 import matplotlib.pyplot as plt
 import numpy as np
-import time
+import onnxruntime as ort
 
 class OpenCyberGlove:
     """
     SDK class to manage one or two gloves (left and/or right) in parallel.
     """
-    def __init__(self, left_port: Optional[str] = None, right_port: Optional[str] = None, glove_cls=Glove):
+    def __init__(self, 
+                 left_port: Optional[str] = None, 
+                 right_port: Optional[str] = None,
+                 model_path: Optional[str] = None,
+                 glove_cls=Glove,
+                 ):
         if not left_port and not right_port:
             raise ValueError("At least one of left_port or right_port must be provided.")
         self.left_glove: Optional[Glove] = glove_cls('left') if left_port else None
@@ -17,6 +22,10 @@ class OpenCyberGlove:
         self.left_port = left_port
         self.right_port = right_port
         self._running = False
+
+        self.model = None
+        if model_path:
+            self.model = ort.InferenceSession(model_path)
 
     def start(self) -> None:
         """Start available gloves' background data readers."""
@@ -36,6 +45,58 @@ class OpenCyberGlove:
         if self.right_glove:
             self.right_glove.stop_reader()
 
+    def get_data(self, hand_type: str) -> GloveSensorData:
+        """
+        Get sensor data from the specified glove.
+        
+        Args:
+            hand_type (str): Type of hand ('left' or 'right')
+            
+        Returns:
+            GloveSensorData: Sensor data from the specified glove
+            
+        Raises:
+            ValueError: If hand_type is invalid
+            RuntimeError: If the specified glove is not available
+        """
+        if hand_type == 'left':
+            if not self.left_glove:
+                raise RuntimeError("Left glove not available")
+            return self.left_glove.get_data()
+        elif hand_type == 'right':
+            if not self.right_glove:
+                raise RuntimeError("Right glove not available")
+            return self.right_glove.get_data()
+        else:
+            raise ValueError(f"Invalid hand type: {hand_type}")
+    
+    def get_angles(self, hand_type: str, method: str = 'model') -> np.ndarray:
+        """
+        Get joint angles from the specified glove.
+        
+        Args:
+            hand_type (str): Type of hand ('left' or 'right')
+            method (str): Method to use for inference ('model' or 'linear')
+
+        Returns:
+            np.ndarray: Array of joint angles in radians for each finger joint
+            
+        Raises:
+            ValueError: If hand_type is invalid
+            RuntimeError: If the specified glove is not available
+        """
+        data = self.get_data(hand_type)
+        if hand_type == 'left':
+            if not self.left_glove:
+                raise RuntimeError("Left glove not available")
+            return self.left_glove.inference(data, method, model=self.model)
+        elif hand_type == 'right':
+            if not self.right_glove:
+                raise RuntimeError("Right glove not available")
+            return self.right_glove.inference(data, method, model=self.model)
+        else:
+            raise ValueError(f"Invalid hand type: {hand_type}")
+        
     def visualize(self) -> None:
         """Placeholder for visualization method."""
         pass 
@@ -74,14 +135,12 @@ class OpenCyberGlove:
                 right_data = None
                 if self.left_glove:
                     try:
-                        left_raw = self.left_glove.get_raw_data()
-                        left_data = self.left_glove.parse_raw_data(left_raw)
+                        left_data = self.left_glove.get_data()
                     except Exception as e:
                         print(f"Left glove error: {e}")
                 if self.right_glove:
                     try:
-                        right_raw = self.right_glove.get_raw_data()
-                        right_data = self.right_glove.parse_raw_data(right_raw)
+                        right_data = self.right_glove.get_data()
                     except Exception as e:
                         print(f"Right glove error: {e}")
                 if left_data is not None and left_line is not None:

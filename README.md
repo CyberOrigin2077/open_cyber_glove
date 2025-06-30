@@ -26,6 +26,10 @@ An open-source Python SDK for interfacing with data gloves, supporting real-time
 ```bash
 git clone https://github.com/CyberOrigin2077/open_cyber_glove.git
 cd open_cyber_glove
+pip install -r requirements.txt
+```
+For developers, you can install the package in editable mode, which helps in applying changes to the code without reinstalling.
+```bash
 pip install -e .
 ```
 
@@ -36,59 +40,85 @@ The package requires:
 - numpy
 - matplotlib
 - tqdm
+- open3d
 
 ## Usage
 
-### Single Glove Example
-```python
-from open_cyber_glove.glove import Glove
+Here are a few examples of how to use the `OpenCyberGlove` SDK.
 
-class MyGlove(Glove):
-    def inference(self, data):
-        # Implement your inference logic here
-        return None
+### Basic Usage: Single Glove
 
-# Initialize and connect
-glove = MyGlove('left')
-glove.connect('/dev/ttyUSB0')
+This example shows how to connect to a single glove, calibrate it, and read raw sensor data.
 
-# Start background data acquisition
-glove.start_reader()
-
-# Calibrate the glove
-glove.calibrate()  # Follow on-screen instructions
-
-# Get and parse data
-raw = glove.get_raw_data()
-parsed = glove.parse_raw_data(raw)
-print(parsed.tensile_data)  # Access specific sensor data
-print(parsed.acc_data)      # Accelerometer data
-print(parsed.gyro_data)     # Gyroscope data
-print(parsed.mag_data)      # Magnetometer data
-print(parsed.temperature)   # Temperature
-print(parsed.timestamp)     # Timestamp
-
-# Stop data acquisition
-glove.stop_reader()
-```
-
-### Dual Glove Example
 ```python
 from open_cyber_glove.sdk import OpenCyberGlove
 
-# Initialize with one or both ports
-sdk = OpenCyberGlove('/dev/ttyUSB0', '/dev/ttyUSB1')
+# Initialize SDK for a single left glove.
+# Replace '/dev/ttyUSB0' with your glove's serial port.
+sdk = OpenCyberGlove(left_port='/dev/ttyUSB0')
 
-# Start data acquisition for all gloves
+# Start the background data reader.
 sdk.start()
 
-# Calibrate all gloves
+# Calibrate the glove. This is an interactive process.
+print("Starting calibration...")
+sdk.calibrate()
+print("Calibration finished.")
+
+# Get the latest sensor data packet.
+sensor_data = sdk.get_data('left')
+print(f"Timestamp: {sensor_data.timestamp}")
+print(f"Tensile data: {sensor_data.tensile_data}")
+print(f"Accelerometer: {sensor_data.acc_data}")
+
+# Stop the data reader.
+sdk.stop()
+```
+
+### Hand Pose Inference
+
+This example shows how to load a pre-trained model and perform inference to get hand joint angles.
+
+```python
+from open_cyber_glove.sdk import OpenCyberGlove
+
+# Initialize SDK with port and path to the ONNX model.
+sdk = OpenCyberGlove(left_port='/dev/ttyUSB0', model_path='model/20250616_164927_haichen_ensemble.onnx')
+
+sdk.start()
 sdk.calibrate()
 
-# Run real-time diagnosis with visualization
-sdk.diagnose()  # Interactive plot showing sensor data
+# Get inferred joint angles.
+joint_angles = sdk.get_angles('left', method='model')
+print("Inferred joint angles (radians):", joint_angles)
 
-# Stop all gloves
+sdk.stop()
+```
+**Note**: The quality of the inference heavily depends on the model and proper calibration.
+
+### Dual Glove & Live Visualization
+
+This example demonstrates managing two gloves simultaneously and visualizing their raw sensor data in real-time.
+
+```python
+from open_cyber_glove.sdk import OpenCyberGlove
+
+# Initialize with ports for both left and right gloves.
+# Replace with your actual serial ports.
+sdk = OpenCyberGlove(left_port='/dev/ttyUSB0', right_port='/dev/ttyUSB1')
+
+# Start data acquisition for both gloves.
+sdk.start()
+
+# Calibrate both gloves sequentially.
+sdk.calibrate()
+
+# Run real-time diagnosis with visualization.
+# This will open a plot showing live sensor data.
+# Close the plot window to stop.
+sdk.diagnose()
+
+# Stop all gloves.
 sdk.stop()
 ```
 
@@ -115,12 +145,33 @@ The `GloveSensorData` class provides structured access to all sensor data:
 - `temperature`: Float
 - `timestamp`: Integer
 
-## Error Handling
-The SDK includes comprehensive error handling:
-- CRC validation for data integrity
-- Queue-based buffering for data acquisition
-- Proper resource cleanup
-- Logging for debugging and monitoring
-
 ## License
-MIT 
+BSD 3-Clause License
+
+Copyright (c) 2024, OpenCyberGlove Contributors
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

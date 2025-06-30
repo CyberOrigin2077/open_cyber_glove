@@ -1,4 +1,6 @@
 pyserial
 numpy
 onnxruntime
-matplotlib 
+matplotlib
+open3d
+scipy 

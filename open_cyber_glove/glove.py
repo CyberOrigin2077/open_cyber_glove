@@ -3,7 +3,7 @@ import struct
 import zlib
 import time
 import numpy as np
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Optional, Dict, Any, Tuple
 from dataclasses import dataclass
 import threading
@@ -88,6 +88,7 @@ class Glove(ABC):
         self._reader_thread = None
         self._reader_running = threading.Event()
         self._queue_lock = threading.Lock()
+        self._buffer = bytearray()
 
     def connect(self, port: str, baudrate: int = DEFAULT_BAUDRATE) -> None:
         """
@@ -132,10 +133,11 @@ class Glove(ABC):
         """
         Main loop for the background data reading thread.
         
-        Continuously monitors the serial port for incoming data packets.
-        When a complete packet is available, validates it using CRC checksum
-        and adds it to the thread-safe data queue. If the queue is full,
-        removes the oldest packet to make room for new data.
+        Continuously monitors the serial port for incoming data, buffers it,
+        and searches for valid data packets. A valid packet is identified by
+        its CRC checksum. Once a valid packet is found, it's added to a
+        thread-safe queue. This approach handles potential data stream
+        misalignment. If the queue is full, the oldest packet is dropped.
         
         Note:
             This method runs in a separate thread and handles exceptions gracefully
@@ -143,15 +145,45 @@ class Glove(ABC):
         """
         while self._reader_running.is_set():
             try:
-                if self.serial_port and self.serial_port.in_waiting >= self.PACKET_SIZE:
-                    data = self.serial_port.read(self.PACKET_SIZE)
-                    if self._is_valid_data(data):
-                        with self._queue_lock:
-                            if self._data_queue.full():
-                                self._data_queue.get_nowait()
-                            self._data_queue.put_nowait(data)
-                else:
+                # Read all available data from serial and add to buffer
+                if self.serial_port and self.serial_port.in_waiting > 0:
+                    data_in = self.serial_port.read(self.serial_port.in_waiting)
+                    self._buffer.extend(data_in)
+
+                # Process buffer to find packets
+                while len(self._buffer) >= self.PACKET_SIZE:
+                    found_packet = False
+                    for i in range(len(self._buffer) - self.PACKET_SIZE + 1):
+                        possible_packet = self._buffer[i:i + self.PACKET_SIZE]
+                        if self._is_valid_data(possible_packet):
+                            try:
+                                # Additional validation for tensile data range
+                                tensile_data = struct.unpack(f'<{self.NUM_TENSILE_SENSORS}i', possible_packet[self.TENSILE_DATA_OFFSET:self.TENSILE_DATA_OFFSET + self.TENSILE_DATA_SIZE])
+                                if not all(0 <= val <= self.SENSOR_MAX_VALUE for val in tensile_data):
+                                    continue  # Skip packet with invalid sensor values
+
+                                with self._queue_lock:
+                                    if self._data_queue.full():
+                                        self._data_queue.get_nowait()  # Drop oldest
+                                    self._data_queue.put_nowait(bytes(possible_packet))
+                                
+                                # Remove processed packet and any preceding bytes from buffer
+                                self._buffer = self._buffer[i + self.PACKET_SIZE:]
+                                found_packet = True
+                                break  # Restart search from the beginning of the modified buffer
+                            except struct.error:
+                                continue # Could not unpack, so not a valid packet.
+
+                    if not found_packet:
+                        # No valid packet found, discard bytes that cannot form a full packet
+                        # Keep the last part of the buffer that might be an incomplete packet
+                        self._buffer = self._buffer[-(self.PACKET_SIZE - 1):]
+                        break # Break from the inner while loop to wait for more data
+
+                # If no data is available, sleep briefly to avoid busy-waiting
+                if not (self.serial_port and self.serial_port.in_waiting > 0):
                     time.sleep(0.001)
+
             except Exception as e:
                 logger.error(f"Error in reader loop: {e}")
                 time.sleep(0.01)
@@ -232,8 +264,7 @@ class Glove(ABC):
         print(f"[{self.hand_type}] Calibration Pose 1: Make a fist and open your hand, multiple times. Press Enter to continue...")
         input()
         for i in tqdm(range(samples_min_max), desc=f"[{self.hand_type}] min/max calibration"):
-            raw = self.get_raw_data()
-            data = self.parse_raw_data(raw)
+            data = self.get_data()
             for j in range(self.NUM_TENSILE_SENSORS):
                 v = data.tensile_data[j]
                 if v < self.min_val[j]:
@@ -249,8 +280,7 @@ class Glove(ABC):
         collected = 0
         with tqdm(total=samples_avg, desc=f"[{self.hand_type}] static avg calibration") as pbar:
             while collected < samples_avg:
-                raw = self.get_raw_data()
-                data = self.parse_raw_data(raw)
+                data = self.get_data()
                 current = data.tensile_data
                 if last is not None and not self._sensors_still(current, last, threshold=10):
                     continue
@@ -260,7 +290,7 @@ class Glove(ABC):
                 collected += 1
                 pbar.update(1)
         print()
-        self.avg_val = [s / samples_avg for s in sums]
+        self.avg_val = np.array([s / samples_avg for s in sums])
         self.is_calibrated = True
 
     @staticmethod
@@ -285,7 +315,7 @@ class Glove(ABC):
         computed_crc = zlib.crc32(data[:self.CRC_DATA_SIZE]) & 0xFFFFFFFF
         return received_crc == computed_crc
 
-    def inference(self, data: GloveSensorData, method="linear") -> np.ndarray:
+    def inference(self, data: GloveSensorData, method: str = "model", model: Optional[Any] = None) -> np.ndarray:
         """
         Infer joint angles from sensor data using specified method.
         
@@ -300,6 +330,10 @@ class Glove(ABC):
             # TODO: add linear mapping implementation here
             raise NotImplementedError
         elif method == "model":
-            pass
+            if model is None:
+                raise ValueError("Model is required for model-based inference")
+            delta_input = (data.tensile_data - self.avg_val).astype(np.float32)
+            outputs = model.run(None, {'input': delta_input[self.SENSOR_ORDER].reshape(1, -1)})
+            return outputs[0][0]
         else:
             raise NotImplementedError
