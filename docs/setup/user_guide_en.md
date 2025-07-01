@@ -32,6 +32,13 @@
 <h4 id="93f94a4d">1. Step 1: Wearing</h4>
 Follow the steps below to wear the glove correctly to ensure sensor accuracy.
 
+Before wearing, please refer to the size chart below to ensure that the glove size is correct.
+
+| Size | Palm Circ. (mm) | Wrist Circ. (mm) | Hand Length (mm) | Middle Finger (mm) | Index Finger (mm) | Thumb (mm) | Ring Finger (mm) | Little Finger (mm) |
+| :--: | :-------------: | :--------------: | :--------------: | :----------------: | :---------------: | :--------: | :--------------: | :----------------: |
+| M | 80-105 | 155-180 | 180-195 | 77-90 | 67-80 | 55-69 | 67-80 | 50-65 |
+| Recommended Best Fit | 89.2 | 165.9 | 186.6 | 83.7 | 72.3 | 62.5 | 74.8 | 60.0 |
+
 - **Finger Alignment**: Put on the glove, ensuring fingers are fully inserted into their respective slots. The webbings between the fingers must align with the base of the glove's finger seams. The fingertips should align with the stitched seam at the tip of the glove.
 - **Surface Smoothing**: Smooth the surface of the glove to ensure there are no twists or wrinkles in the sensor area.
 - **Wrist Fastening**: Tighten the adjustment strap to secure the glove, while ensuring freedom of wrist movement.
