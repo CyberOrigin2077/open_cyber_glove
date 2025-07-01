@@ -9,7 +9,7 @@ description = "Open-source Python SDK for interfacing with data gloves, supporti
 authors = [
     { name = "OpenCyberGlove Contributors", email = "contact@cyberorigin.ai" }
 ]
-license = {text = "MIT"}
+license = {text = "BSD 3-Clause"}
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
@@ -17,11 +17,10 @@ dependencies = [
     "numpy",
     "matplotlib",
     "tqdm",
-    "logging",
     "open3d",
     "scipy"
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/open-cyber-glove"
-Repository = "https://github.com/your-org/open-cyber-glove" 
+Homepage = "https://github.com/CyberOrigin2077/open_cyber_glove"
+Repository = "https://github.com/CyberOrigin2077/open_cyber_glove" 

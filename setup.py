@@ -7,21 +7,20 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="OpenCyberGlove Contributors",
-    license="MIT",
+    license="BSD 3-Clause",
     packages=find_packages(),
     install_requires=[
         "pyserial",
         "numpy",
         "matplotlib",
         "tqdm",
-        "logging"
         "open3d"
     ],
     python_requires=">=3.7",
-    url="https://github.com/your-org/open-cyber-glove",
+    url="https://github.com/CyberOrigin2077/open-cyber-glove",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
     include_package_data=True,

@@ -47,7 +47,7 @@ Please use our [GitHub Issues](https://github.com/CyberOrigin2077/cyber_glove_ro
 ## Commercial Use
 
 ### Can I use OpenCyberGlove for commercial purposes?
-Yes, the project is licensed under the MIT License, which allows for commercial use. However, we ask that you acknowledge the project in your work.
+Yes, the project is licensed under the BSD 3-Clause License, which allows for commercial use. However, we ask that you acknowledge the project in your work.
 
 ### Do you offer commercial support?
 Currently, we do not offer commercial support. However, we maintain an active community and documentation to help users.

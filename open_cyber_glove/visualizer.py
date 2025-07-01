@@ -1,11 +1,8 @@
 import numpy as np
 import pickle
-import trimesh
 import open3d as o3d
 from abc import ABC, abstractmethod
 from .utils import forward_kinematics, DEFAULT_GT_ORDER
-import threading
-import time
 import queue
 
 class BaseHandVisualizer(ABC):
