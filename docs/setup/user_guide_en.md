@@ -1,6 +1,8 @@
 <h1 id="cyberorigin-glove-user-manual">CyberOrigin Glove User Manual</h1>
+<p align="left"><a href="../user_guide_cn">中文版</a></p>
 <h3 id="81cd1d42">Part 1: Getting Started</h3>
 <h4 id="1.-cover-and-packing-list">1. Cover and Packing List</h4>
+
 
 - **Product Information**
     - Product Name: CyberOrigin Glove
@@ -32,7 +34,7 @@
 <h4 id="93f94a4d">1. Step 1: Wearing</h4>
 Follow the steps below to wear the glove correctly to ensure sensor accuracy.
 
-Before wearing, please refer to the size chart below to ensure that the glove size is correct.
+Before wearing, please refer to the size chart below to ensure that the glove size is correct. Currently, L/S size gloves are not available.
 
 | Size | Palm Circ. (mm) | Wrist Circ. (mm) | Hand Length (mm) | Middle Finger (mm) | Index Finger (mm) | Thumb (mm) | Ring Finger (mm) | Little Finger (mm) |
 | :--: | :-------------: | :--------------: | :--------------: | :----------------: | :---------------: | :--------: | :--------------: | :----------------: |
@@ -79,18 +81,7 @@ Gesture examples are as follows:
 <h4 id="b7be8e01">4. Step 4: Usage</h4>
 
 
-<h3 id="2604b548">Part 3: Software Guide</h3>
-<h4 id="1.-download-and-installation">1. Download and Installation</h4>
-
-- **Download Channel**: Visit the official website www.cyberorigin.ai to download the companion software and SDK.
-- **Minimum System Requirements**:
-    - Windows
-    - Linux
-
-<h4 id="ae0372ed">2. Software/SDK Setup</h4>
-
-
-<h3 id="b24c9938">Part 4: Precautions and Daily Maintenance</h3>
+<h3 id="b24c9938">Part 3: Precautions and Daily Maintenance</h3>
 <h4 id="1.-safety-notices">1. Safety Notices</h4>
 
 - **Personal Safety**: If discomfort occurs, discontinue use immediately. Individuals with special medical conditions should follow medical advice.
@@ -112,26 +103,3 @@ Gesture examples are as follows:
 - **Port Cleaning**: Ensure the port is clean and dry.
 - **Precautions**: Disconnect from power before cleaning and avoid contact with corrosive liquids.
 
-<h3 id="c98c3e3b">Part 5: Support and Service</h3>
-<h4 id="805d0475">1. Frequently Asked Questions (FAQ)</h4>
-
-- **Connection Issues**:
-    - **Q**: The computer does not recognize the device?
-    - **A**: Try changing the USB port or restarting the computer; ensure the original data cable is used.
-- **Usage Issues**:
-    - **Q**: Inaccurate recognition or latency?
-    - **A**: Recalibrate; check for environmental interference.
-
-<h4 id="2.-after-sales-service-and-technical-support">2. After-Sales Service and Technical Support</h4>
-
-- **Contact Information**:
-    - Customer Service Phone: 
-    - Email: 
-    - Online Support: 
-- **Warranty Policy**: For detailed warranty terms, refer to the warranty card or the official website.
-
-<h4 id="3.-appendix">3. Appendix</h4>
-
-- **Technical Specifications**: [Include parameters such as weight, dimensions, power supply method, port type, sensor type, etc.]
-- **Regulatory and Compliance Information**: [Enter Regulatory Information]
-- **Hazardous Substances Information**: [Enter Hazardous Substances Table]

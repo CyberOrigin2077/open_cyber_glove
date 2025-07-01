@@ -1,4 +1,5 @@
 <h1 id="7941282f">可穿戴手套产品使用说明书</h1>
+<p align="left"><a href="../user_guide_en">English Version</a></p>
 <h3 id="7a35cca9">第一部分：入门必读</h3>
 <h4 id="238f7ae1">1. 封面与开箱清单</h4>
 
@@ -7,7 +8,7 @@
     - 产品图：
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-  <img src="../imgs/userguide_product_img.png" width="400" style="transform: rotate(-90deg);" />
+  <img src="../../imgs/userguide_product_img.png" width="400" style="transform: rotate(-90deg);" />
 </div>
 
 - **开箱清单**：包装盒内含：
@@ -20,8 +21,8 @@
 - 产品结构图
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-  <img src="../imgs/userguide_product_diagram1_cn.png" width="300" />
-  <img src="../imgs/userguide_product_diagram2_cn.png" width="300" />
+  <img src="../../imgs/userguide_product_diagram1_cn.png" width="300" />
+  <img src="../../imgs/userguide_product_diagram2_cn.png" width="300" />
 </div>
 
 - **各部位名称及功能**：
@@ -36,7 +37,7 @@
 
 按照下面步骤正确穿戴手套，以确保传感器精度。 
 
-在穿戴前，请参考下方的尺码表，以确保选择的手套尺寸合适。
+在穿戴前，请参考下方的尺码表，以确保选择的手套尺寸合适。目前暂不提供L/S尺码手套。
 
 | 尺码 | 手掌维度（mm） | 手腕维度（mm） | 手长（mm） | 中指（mm） | 食指（mm） | 大拇指（mm） | 无名指（mm） | 小指（mm） |
 | :--: | :--------: | :--------: | :----: | :----: | :----: | :------: | :------: | :----: |
@@ -48,12 +49,12 @@
 - **腕部固定**：拉紧调节带以固定手套，确保手腕活动自如。
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-  <img src="../imgs/userguide_wearing1_cn.png" width="300" />
-  <img src="../imgs/userguide_wearing2_cn.png" width="300" />
+  <img src="../../imgs/userguide_wearing1_cn.png" width="300" />
+  <img src="../../imgs/userguide_wearing2_cn.png" width="300" />
 </div>
 
 <div style="display: flex; justify-content: center; align-items: center;">
-  <img src="../imgs/userguide_wearing.gif" width="350" style="transform: rotate(-90deg);" />
+  <img src="../../imgs/userguide_wearing.gif" width="350" style="transform: rotate(-90deg);" />
 </div>
 
 
@@ -75,27 +76,19 @@
 手势示例如下：
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-  <img src="../imgs/userguide_calibration1_cn.png" width="300" />
-  <img src="../imgs/userguide_calibration2_cn.png" width="300" />
+  <img src="../../imgs/userguide_calibration1_cn.png" width="300" />
+  <img src="../../imgs/userguide_calibration2_cn.png" width="300" />
 </div>
 <div style="display: flex; justify-content: center; align-items: center; gap: 150px;">
-  <img src="../imgs/userguide_calibration1.gif" width="170" style="transform: rotate(-90deg);" />
-  <img src="../imgs/userguide_calibration2.gif" width="170" style="transform: rotate(-90deg);" />
+  <img src="../../imgs/userguide_calibration1.gif" width="170" style="transform: rotate(-90deg);" />
+  <img src="../../imgs/userguide_calibration2.gif" width="170" style="transform: rotate(-90deg);" />
 </div>
 
 <h4 id="45856e61">4. 步骤四：使用</h4>
 
 
-<h3 id="TpKxU">第三部分：配套指南</h3>
-<h4 id="32c093e4">1. 下载与安装</h4>
 
-- **下载渠道**：访问官网www.cyberorigin.ai下载配套软件和SDK。
-- **最低系统要求**：
-    - Windows 
-    - Linux
-
-<h4 id="a85f6029">2. 软件/SDK设置</h4>
-<h3 id="bwjTg">第四部分：注意事项与日常维护</h3>
+<h3 id="bwjTg">第三部分：注意事项与日常维护</h3>
 <h4 id="f6710224">1. 安全须知</h4>
 
 - **人身安全**：若有不适，立即停用。特殊身体状况者遵医嘱。
@@ -116,29 +109,5 @@
 - **清洁方法**：使用柔软无毛湿布擦拭即可。严禁水洗或使用含酒精的清洁剂。
 - **接口清洁**：确保接口洁净干燥。
 - **注意事项**：清洁前请断开电源并避免接触腐蚀性液体
-
-<h3 id="Zjsrc">第五部分：支持与服务</h3>
-<h4 id="385c30a1">1. 常见问题解答 (FAQ)</h4>
-
-- **连接类**：
-    - **问**：电脑无法识别设备？
-    - **答**：更换USB接口或重启电脑；使用原装数据线。
-- **使用类**：
-    - **问**：识别不准或延迟？
-    - **答**：重新校准；检查环境干扰。
-
-<h4 id="4f5ac513">2. 售后服务与技术支持</h4>
-
-- **联系方式**：
-    - 客服电话：
-    - 电子邮件：
-    - 在线支持：
-- **保修政策**：保修条款详见保修卡或官网。
-
-<h4 id="49df29c7">3. 附录</h4>
-
-- **技术规格表**：[包含重量、尺寸、供电方式、接口类型、传感器等参数]
-- **法规与合规信息**：
-- **有害物质信息表**
 
 
