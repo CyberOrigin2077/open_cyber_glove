@@ -75,52 +75,25 @@ print(f"Accelerometer: {sensor_data.acc_data}")
 sdk.stop()
 ```
 
-### Hand Pose Inference
+### Real-Time 3D Hand Visualization
 
-This example shows how to load a pre-trained model and perform inference to get hand joint angles.
+The `examples/hello_world.py` script provides a complete demonstration of the SDK's capabilities, including real-time hand pose inference and 3D visualization. It reads data from one or two gloves, feeds it into a pre-trained ONNX model to infer joint angles, and then visualizes the hand's movement in a 3D environment using Open3D.
 
-```python
-from open_cyber_glove.sdk import OpenCyberGlove
+To run the example, use the following command structure, providing the serial ports for your gloves and paths to the model files.
 
-# Initialize SDK with port and path to the ONNX model.
-sdk = OpenCyberGlove(left_port='/dev/ttyUSB0', model_path='model/20250616_164927_haichen_ensemble.onnx')
-
-sdk.start()
-sdk.calibrate()
-
-# Get inferred joint angles.
-joint_angles = sdk.get_angles('left', method='model')
-print("Inferred joint angles (radians):", joint_angles)
-
-sdk.stop()
+**Example command for dual gloves:**
+```bash
+python3 -m examples.hello_world --right_port ${RIGHT_PORT} --left_port ${LEFT_PORT} --calib_path ${HAND_MODEL} --model_path ${MODEL_PATH}
 ```
-**Note**: The quality of the inference heavily depends on the model and proper calibration.
 
-### Dual Glove & Live Visualization
-
-This example demonstrates managing two gloves simultaneously and visualizing their raw sensor data in real-time.
-
-```python
-from open_cyber_glove.sdk import OpenCyberGlove
-
-# Initialize with ports for both left and right gloves.
-# Replace with your actual serial ports.
-sdk = OpenCyberGlove(left_port='/dev/ttyUSB0', right_port='/dev/ttyUSB1')
-
-# Start data acquisition for both gloves.
-sdk.start()
-
-# Calibrate both gloves sequentially.
-sdk.calibrate()
-
-# Run real-time diagnosis with visualization.
-# This will open a plot showing live sensor data.
-# Close the plot window to stop.
-sdk.diagnose()
-
-# Stop all gloves.
-sdk.stop()
+You can also run it with a single glove:
+```bash
+python3 -m examples.hello_world --right_port ${RIGHT_PORT} --calib_path ${HAND_MODEL} --model_path ${MODEL_PATH}
 ```
+
+The script will first guide you through the interactive calibration process for each connected glove. After calibration, a 3D visualization window will appear, showing the real-time movement of the hand(s).
+
+**Note**: The quality of the visualization depends on the model and proper calibration.
 
 ## Calibration
 The calibration process is interactive and consists of two phases:
