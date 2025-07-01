@@ -93,7 +93,50 @@ For detailed examples and use cases, please see our [Examples Guide](../examples
 - Visualization examples
 - Integration with other platforms (ROS2, Unity, etc.)
 
-## FK
+## Forward Kinematics
+
+Forward Kinematics (FK) is used to reconstruct the 3D joint positions and orientations of the hand based on given joint angles and calibration data. This functionality is implemented by the `forward_kinematics_from_angles` function.
+
+### Basic Principle
+Its core principle is **sequential coordinate system transformation**: Starting from the root joint (wrist), the pose of each child joint relative to its parent joint is calculated sequentially along the kinematic chain, until the positions and orientations of all fingertips are determined.
+
+### Function Details
+
+#### Input Parameters
+
+- `gt_angles` (`dict`): A dictionary containing the target rotation angles (flexion, abduction) for each joint, typically as increments relative to the calibration pose.
+- `calib_dict` (`dict`): The kinematics calibration dictionary, which defines the static geometric information of the hand model. Key fields include:
+    - `joint_pos`: 3D coordinates of the joints in the calibration pose.
+    - `all_coordinates`: The local coordinate system of each joint in the calibration pose (`4x4` matrix).
+    - `link_lengths`: The bone lengths between adjacent joints.
+    - `kinematic_tree`: The kinematic chain that defines the parent-child relationships between joints.
+
+#### Return Values
+
+- `fk_joints` (`numpy.ndarray`): The reconstructed 3D coordinates of the 21 hand joints, with a shape of `(21, 3)`.
+- `fk_rot` (`numpy.ndarray`): The local coordinate system (rotation matrix) of each joint after rotation, defining its final orientation, with a shape of `(21, 3, 3)`.
+
+### Calculation Process
+The following is the calculation process for forward kinematics (taking a single finger, such as the index finger, as an example):
+
+1.  **Parent-Child Joint Determination**: The calculation proceeds iteratively from the root joint (wrist) along the kinematic chain. At each level, the pose of the currently calculated joint (child joint) is derived from the pose of its preceding joint (parent joint).
+
+2.  **Local Coordinate System Transformation (Pose Calculation)**:
+    - First, obtain the parent joint's pose (`prev_pos`, `prev_cs`) and the target rotation angles (flexion, abduction) of the current joint.
+    - Next, generate the rotation matrices `R_flex` and `R_abd` accordingly and apply them to the parent joint's local coordinate system to calculate the new orientation of the child joint, `rotated_cs`:
+      ```python
+      rotated_cs = R_abd @ R_flex @ prev_cs[:3, :3]
+      ```
+
+3.  **Child Joint Position Calculation**:
+    - The position of the child joint, `curr_pos`, is the sum of the parent joint's position and the bone vector.
+    - This vector is determined by the bone length, `link_length`, and its direction in the new coordinate system (the Y-axis unit vector, `rotated_cs[:, 1]`):
+      ```python
+      curr_pos = prev_pos + link_length * rotated_cs[:, 1]
+      ```
+
+4.  **State Update and Propagation**:
+    The calculated pose of the child joint (`curr_pos`, `rotated_cs`) serves as the parent joint's information for the next level of calculation, propagating along the kinematic chain to the fingertip.
 
 ## Getting Help
 - [API Documentation](docs/api.md) (TODO)
