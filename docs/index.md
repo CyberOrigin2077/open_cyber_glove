@@ -35,7 +35,8 @@ python3 examples/hello_world.py
 ## Documentation
 
 ### Getting Started
-- [**Setup Guide**](setup/user_guide_en.md): Detailed installation and configuration instructions
+- [**User Gudie**](setup/user_guide_en.md): User guide
+- [**Setup Guide**](setup/software.md): Detailed installation and configuration instructions
 - [**Hardware Guide**](setup/hardware.md): Hardware specifications and assembly guide
 - [**Examples**](examples.md): Code examples and usage tutorials
 
