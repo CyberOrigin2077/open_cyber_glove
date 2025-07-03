@@ -33,13 +33,11 @@ For more glove information and demo video, please check out [product introductio
 - [**Safety Guidelines**](safety_en.md): Guidelines for operation safety
 - [**FAQ**](faq.md): Frequently asked questions
 
-## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and suggest improvements.
 
-## License
+## Change Log
+- **2025-07:** **OpenCyberGlove🧤** is now available.
 
-This project is licensed under the [BSD 3-Clause License](LICENSE) - see the [license file](license.md) for details.
 
 ## Citation
 
@@ -54,9 +52,14 @@ If you use OpenCyberGlove in your research, please cite our work:
   url = {https://github.com/CyberOrigin2077/open_cyber_glove}
 }
 ```
+## Contributing
 
-## Change Log
-- **2025-07:** **OpenCyberGlove🧤** is now available.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and suggest improvements.
+
+## License
+
+This project is licensed under the [BSD 3-Clause License](LICENSE) - see the [license file](license.md) for details.
+
 
 ## Contact
 

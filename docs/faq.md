@@ -1,66 +1,22 @@
 # Frequently Asked Questions
 
-## General Questions
 
-### What is OpenCyberGlove?
-OpenCyberGlove is an open-source data glove designed for high-fidelity finger tracking. It features 19 stretch sensors and can operate at frequencies up to 120Hz, making it suitable for research, development, and applications in embodied AI.
+- **What is the accuracy?**
 
-### How accurate is the finger tracking?
-The accuracy depends on proper calibration and sensor placement. With optimal setup, the system can achieve sub-degree accuracy for finger joint angles.
+For the flexible sensors inside the gloves, different hand sizes and shapes can significantly affect the range of sensor readings (for example, when wearing gloves of the same size, different people's hands may produce varying readings), thus influencing the accuracy in estimating joint angles. In our product documentation, we will include information about the range of hand sizes corresponding to each glove size (as well as the optimal hand size range for model predictions) to help users determine whether the gloves meet their needs. In our tests, within this ideal range, the average error of joint angle estimation is within *2°* (compared against an optical motion capture system as ground truth). For users with higher precision requirements, we also provide interfaces to raw sensor data, enabling users to develop customized, higher-precision models. We welcome and look forward to users expanding the boundaries of OpenCyberGlove through their own creative approaches.
 
-### What operating systems are supported?
-The software is primarily developed and tested on Linux (Ubuntu 20.04/22.04), but it should work on any system that supports Python 3.8+ and ROS2.
+- **Where are the sensors located?**
 
-## Hardware Questions
+The sensors are located at each finger joint (MCP, PIP, DIP) and in the areas between fingers.
 
-### What sensors are used?
-The glove uses 19 flex sensors strategically placed to track finger and hand movements. Each sensor is carefully calibrated for optimal performance.
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+  <img src="../imgs/sensor_specs.png" width="300" />
+</div>
 
-### How long does the battery last?
-The battery life depends on the sampling rate and usage patterns. Typically, you can expect 4-6 hours of continuous operation at 120Hz.
+- **How is the repeatability and linearity of the sensor?**
 
-### Is the glove waterproof?
-No, the current version is not waterproof. Care should be taken to avoid exposure to water or moisture.
+The reading of flex sensors changes 99% linearly with the extension of the material. In terms of repeatability, after 100 thousand extensions, the readings remain at ≥ 98% of their original value.
 
-## Software Questions
+- **How to implement my own model for joint angle estimation?**
 
-### What programming languages are supported?
-The core software is written in Python, with ROS2 integration. The API is designed to be language-agnostic, allowing integration with various programming languages.
-
-### How do I calibrate the glove?
-Calibration is done through our calibration software, which guides you through the process. The system automatically detects when sensors are stable to ensure accurate calibration data collection.
-
-### Can I use multiple gloves simultaneously?
-Yes, the system supports multiple gloves through our multi-threaded processing architecture. Each glove operates independently to ensure optimal performance.
-
-## Development Questions
-
-### How can I contribute to the project?
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and suggest improvements.
-
-### Is there a test suite?
-Yes, we maintain a comprehensive test suite. New features should include appropriate tests to ensure reliability.
-
-### How do I report bugs?
-Please use our [GitHub Issues](https://github.com/CyberOrigin2077/cyber_glove_ros2_py/issues) page to report bugs. Include as much detail as possible about the issue, including steps to reproduce and expected behavior.
-
-## Commercial Use
-
-### Can I use OpenCyberGlove for commercial purposes?
-Yes, the project is licensed under the BSD 3-Clause License, which allows for commercial use. However, we ask that you acknowledge the project in your work.
-
-### Do you offer commercial support?
-Currently, we do not offer commercial support. However, we maintain an active community and documentation to help users.
-
-## Community
-
-### Where can I get help?
-- GitHub Issues: For bug reports and feature requests
-- Documentation: For detailed guides and tutorials
-- Community Forums: For general discussion and help
-- Discord: For real-time community support
-
-### How can I stay updated?
-- Star and watch our GitHub repository
-- Join our Discord community
-- Follow our social media channels
+Currently, this is an open research area. You can develop your own deep learning model by leveraging additional measurement systems (such as motion capture systems or camera-based 3D keypoint detection) to map 3D joint locations to sensor readings. Since we provide access to the raw sensor data interface, users can train custom models optimized for their specific needs and potentially achieve higher accuracy than our default model, which prioritizes generalizability across different users.

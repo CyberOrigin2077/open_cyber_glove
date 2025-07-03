@@ -28,28 +28,13 @@ Joint coordinate systems:
 - X-axis for flexion/extension, Z-axis for abduction/adduction, Y-axis points to child joint. 
 - The FK process can be customized with user-defined coordinate decomposition for specialized applications.
 
+#### Joint Angle Estimation Model
 
-##### Calculation Process
-The following is the calculation process for forward kinematics (taking a single finger, such as the index finger, as an example):
+The model provided is trained by data collected from many people (with medium size hands), mainly focusing on generalizability. We plan to release the training pipeline later for our users to implement their own model.
 
-1.  **Parent-Child Joint Determination**: The calculation proceeds iteratively from the root joint (wrist) along the kinematic chain. At each level, the pose of the currently calculated joint (child joint) is derived from the pose of its preceding joint (parent joint).
+## More Examples
 
-2.  **Local Coordinate System Transformation (Pose Calculation)**:
-    - First, obtain the parent joint's pose (`prev_pos`, `prev_cs`) and the target rotation angles (flexion, abduction) of the current joint.
-    - Next, generate the rotation matrices `R_flex` and `R_abd` accordingly and apply them to the parent joint's local coordinate system to calculate the new orientation of the child joint, `rotated_cs`:
-      ```python
-      rotated_cs = R_abd @ R_flex @ prev_cs[:3, :3]
-      ```
-
-3.  **Child Joint Position Calculation**:
-    - The position of the child joint, `curr_pos`, is the sum of the parent joint's position and the bone vector.
-    - This vector is determined by the bone length, `link_length`, and its direction in the new coordinate system (the Y-axis unit vector, `rotated_cs[:, 1]`):
-      ```python
-      curr_pos = prev_pos + link_length * rotated_cs[:, 1]
-      ```
-
-4.  **State Update and Propagation**:
-    The calculated pose of the child joint (`curr_pos`, `rotated_cs`) serves as the parent joint's information for the next level of calculation, propagating along the kinematic chain to the fingertip.
+Release soon
 
 ## Contributing
 We welcome contributions! See our [Contributing Guide](../CONTRIBUTING.md) for details.
