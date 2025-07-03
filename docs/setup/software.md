@@ -18,8 +18,16 @@ Refer to [https://github.com/CyberOrigin2077/open_cyber_glove](https://github.co
 
 Forward Kinematics (FK) is used to reconstruct the 3D joint positions and orientations of the hand based on given joint angles and calibration data. This functionality is implemented by the `forward_kinematics_from_angles` function. Due to the number of flex sensors in the glove, we implemented a simpified version FK to get the fingertip position.
 
-#####  Basic Principle
-Its core principle is **sequential coordinate system transformation**: Starting from the root joint (wrist), the pose of each child joint relative to its parent joint is calculated sequentially along the kinematic chain, until the positions and orientations of all fingertips are determined.
+##### Hand Model and Coordinate System
+Our hand model defines 21 degrees of freedom:
+- **Thumb**: CMC (2 DOF), MCP (2 DOF), IP (1 DOF)
+- **Other Four Fingers**: MCP (2 DOF), PIP (1 DOF), DIP (1 DOF) each
+
+Joint coordinate systems: 
+- Wrist and four MCP joints maintain fixed relative positions. Calibration establishes these systems, with left/right hands handled by mirroring abduction/adduction angles.
+- X-axis for flexion/extension, Z-axis for abduction/adduction, Y-axis points to child joint. 
+- The FK process can be customized with user-defined coordinate decomposition for specialized applications.
+
 
 ##### Calculation Process
 The following is the calculation process for forward kinematics (taking a single finger, such as the index finger, as an example):
