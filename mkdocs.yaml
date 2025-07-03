@@ -47,9 +47,8 @@ markdown_extensions:
 
 nav:
     - Home: index.md
-    - Setup:
-        - Hardware: setup/hardware.md
-        - Software: setup/software.md
-    - Examples: examples.md 
+    - User Guide: setup/user_guide_en.md
+    - Software: setup/software.md
+    - Safety: safety_en.md
+    - FAQ: faq.md
     - License: license.md
-    - References: references.md

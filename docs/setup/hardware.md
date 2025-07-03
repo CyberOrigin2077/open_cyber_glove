@@ -9,8 +9,8 @@
 - **Durability**: Designed for 1000+ hours of continuous use
 
 ### Sensor Specifications
-- **Total Sensors**: 19 stretch sensors per glove
-- **Sensor Type**: Conductive stretch sensors
+- **Total Sensors**: 19 flex sensors per glove
+- **Sensor Type**: Conductive flex sensors
 - **Sensor Placement**:
   - 3 sensors per finger (MCP, PIP, DIP joints)
   - 4 sensors for finger-between
@@ -23,7 +23,7 @@
 - **Baudrate**: 1M
 - **Frequency**: Up to 120Hz
 - **Data**:
-  - 19 stretch sensor data
+  - 19 flex sensor data
   - 9-axis accelerometer, gyro and magnetometer data
   - temperature
   - timestamp
@@ -48,7 +48,7 @@ typedef struct
 } hand_data_t;
 ```
 
-## About stretch sensors
+## About flex sensors
 <!-- put the image from doc here, make a better graph. (TODO @zimo) -->
 
 

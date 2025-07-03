@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # Check if SDK is properly initialized
     sdk.start()
     sdk.calibrate()
-    # sdk.diagnose()
+    sdk.diagnose()
 
     visualizer = HandVisualizer(model_path=args.calib_path)    
     

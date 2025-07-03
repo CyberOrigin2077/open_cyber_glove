@@ -1,49 +1,37 @@
 # OpenCyberGlove: An Open-source Data Glove for Embodied AI 
+
+<div align="center" style="line-height: 1;">
+  <a href="https://discord.gg/jAujSRAK" target="_blank"><img alt="Discord" src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white"/></a>
+  <a href="https://open-cyber-glove.notion.site/OpenCyberGlove-Intro-21d7a9fbe9288032b0c6c5fab62d21b1" target="_blank"><img alt="Notion" src="https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white"/></a>
+    <a href="https://CyberOrigin2077.github.io/open_cyber_glove/" target="_blank"><img alt="Website" src="https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white"/></a>
+   <br>
+  <a href="https://github.com/CyberOrigin2077/open_cyber_glove" target="_blank"><img alt="GitHub stars" src="https://img.shields.io/github/stars/CyberOrigin2077/open_cyber_glove?style=social"/></a>
+  <a href="https://opensource.org/licenses/BSD-3-Clause"><img alt="License" src="https://img.shields.io/badge/License-BSD_3--Clause-blue.svg"/></a>
+</div>
+
 ![OpenCyberGlove](imgs/open_cyber_glove_teaser.png)
 
-The OpenCyberGlove is an open-source high fidelity finger tracking glove. Allowing for cost-efficient manipulation data collection and teleoperation.
+The OpenCyberGlove is an open-source high fidelity finger tracking glove. We aim to contribute to research on robotic dexterous hands by providing efficient hand motion tracking, accelerating the development of robotic dexterous manipulation.
 
-## Features
+## Key Features
+- 🪶 Super light and thin, 25g for each glove
+- 📐 High DoF, with 19 flex sensors integrated
+- ✅ High accuracy, data-driven method joint angle estimation
+- 📻 High frequency, up to 120 Hz
+- 🎮 Plug and play, full-stack open-source SDK and examples
+- 💰 Cost efficient, cheaper than most hand motion capture solutions
 
-- [**🧤 Sensors**](setup/hardware.md): 19 stretch sensors integrated. Max frequency as high as 120Hz.
-- [**ℹ️ Open-Source**](setup/software.md): raw data API, processed result and example usage provided, including ROS2, python SDK.
-- [**📊 Data-Driven**](setup/software.md): Built-in machine learning model to convert sensor data into joint angles in real-time
-
-
-## Quick Start
-
-1. Get a pair of OpenCyberGlove from [our store](#).
-
-2. Clone the repository:
-```bash
-git clone https://github.com/CyberOrigin2077/open_cyber_glove.git
-cd open_cyber_glove
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Follow the [setup guide](setup/software.md) to configure your environment.
-
-5. Run the example:
-```bash
-python3 examples/hello_world.py
-```
+For more glove information and demo video, please check out [product introduction page](https://open-cyber-glove.notion.site/OpenCyberGlove-Intro-21d7a9fbe9288032b0c6c5fab62d21b1?pvs=73).
 
 ## Documentation
 
 ### Getting Started
-- [**User Guide**](setup/user_guide_en.md): User guide
-- [**Setup Guide**](setup/software.md): Detailed installation and configuration instructions
-- [**Hardware Guide**](setup/hardware.md): Hardware specifications and assembly guide
-- [**Examples**](examples.md): Code examples and usage tutorials
+- [**User Guide**](setup/user_guide_en.md): Please read this guide carefully before playing with the gloves
+- [**Software**](setup/software.md): Detailed software installation and configuration instructions
 
 ### Reference
-- [**API Documentation**](api.md): Detailed API reference
+- [**Safety Guidelines**](safety_en.md): Guidelines for operation safety
 - [**FAQ**](faq.md): Frequently asked questions
-- [**References**](references.md): Academic papers and related resources
 
 ## Contributing
 
@@ -58,22 +46,21 @@ This project is licensed under the [BSD 3-Clause License](LICENSE) - see the [li
 If you use OpenCyberGlove in your research, please cite our work:
 
 ```bibtex
-@misc{opencyberglove2024,
-  author = {CyberOrigin2077},
+@misc{opencyberglove2025,
+  author = {CyberOrigin.ai},
   title = {OpenCyberGlove: An Open-source Data Glove for Embodied AI},
-  year = {2024},
+  year = {2025},
   publisher = {GitHub},
   url = {https://github.com/CyberOrigin2077/open_cyber_glove}
 }
 ```
 
-## Release
-- **2024-07:** **OpenCyberGlove🧤** is now available. Get one at [link].
+## Change Log
+- **2025-07:** **OpenCyberGlove🧤** is now available.
 
 ## Contact
 
 - GitHub Issues: [Report bugs or request features](https://github.com/CyberOrigin2077/open_cyber_glove/issues)
-- Email: [Your contact email]
-- Discord: [Your Discord server link]
+- Questions or More Info: [contact@cyberorigin.ai](contact@cyberorigin.ai)
 
 

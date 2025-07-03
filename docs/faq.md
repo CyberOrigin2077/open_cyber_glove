@@ -14,7 +14,7 @@ The software is primarily developed and tested on Linux (Ubuntu 20.04/22.04), bu
 ## Hardware Questions
 
 ### What sensors are used?
-The glove uses 19 stretch sensors strategically placed to track finger and hand movements. Each sensor is carefully calibrated for optimal performance.
+The glove uses 19 flex sensors strategically placed to track finger and hand movements. Each sensor is carefully calibrated for optimal performance.
 
 ### How long does the battery last?
 The battery life depends on the sampling rate and usage patterns. Typically, you can expect 4-6 hours of continuous operation at 120Hz.
