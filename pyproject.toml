@@ -18,7 +18,8 @@ dependencies = [
     "matplotlib",
     "tqdm",
     "open3d",
-    "scipy"
+    "scipy",
+    "onnxruntime"
 ]
 
 [project.urls]
