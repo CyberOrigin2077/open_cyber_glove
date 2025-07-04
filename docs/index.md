@@ -25,7 +25,7 @@ For more glove information and demo video, please check out [product introductio
 
 ## Documentation
 
-### Getting Started
+### Get Started
 - [**User Guide**](setup/user_guide_en.md): Please read this guide carefully before playing with the gloves
 - [**Software**](setup/software.md): Detailed software installation and configuration instructions
 

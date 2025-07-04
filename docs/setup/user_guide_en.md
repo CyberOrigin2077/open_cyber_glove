@@ -1,5 +1,11 @@
 # Get Started Guide
 
+## Potential Risks and Limitations
+
+**1. Due to limitations in the durability of the fabric material, we are unable to provide a long-term warranty comparable to that of mechanical products. Instead, we offer a limited 3-month replacement policy at no additional cost.**
+
+**2. Given the high sensitivity of the flexible sensors within the gloves to individual hand morphology, there may be instances where the pre-provided models do not fully meet the user's precision requirements.**
+
 ## Unbox
 
 ### Packing List
