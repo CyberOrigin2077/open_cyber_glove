@@ -21,7 +21,7 @@ An open-source Python SDK for interfacing with data gloves, supporting real-time
   - Timestamp
 - Extensible inference interface for custom models
 
-For more product info, refer to [here](https://open-cyber-glove.notion.site/OpenCyberGlove-Intro-21d7a9fbe9288032b0c6c5fab62d21b1). For 
+For more product info, refer to [here](https://open-cyber-glove.notion.site/OpenCyberGlove-Intro-21d7a9fbe9288032b0c6c5fab62d21b1).
 
 ## Installation
 
