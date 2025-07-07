@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open_cyber_glove"
+version = "0.1.0"
+description = "Open-source Python SDK for interfacing with data gloves, supporting real-time sensor data acquisition, calibration, and extensible inference."
+authors = [
+    { name = "OpenCyberGlove Contributors", email = "contact@cyberorigin.ai" }
+]
+license = {text = "BSD 3-Clause"}
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "pyserial",
+    "numpy",
+    "matplotlib",
+    "tqdm",
+    "open3d",
+    "scipy",
+    "onnxruntime"
+]
+
+[project.urls]
+Homepage = "https://github.com/CyberOrigin2077/open_cyber_glove"
+Repository = "https://github.com/CyberOrigin2077/open_cyber_glove" 
