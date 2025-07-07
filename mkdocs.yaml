@@ -1,8 +1,8 @@
 site_name: OpenCyberGlove
 site_description: "An Open-Source CyberGlove"
 
-repo_url: https://github.com/CyberOrigin2077/open_cyber_glove
-repo_name: OpenCyberGlove
+repo_url: ${REPO_URL}
+repo_name: ${REPO_NAME}
 
 remote_branch: gh-pages
 
