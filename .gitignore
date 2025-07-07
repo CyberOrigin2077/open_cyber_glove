@@ -46,11 +46,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-<<<<<<< HEAD
-*.py,cover
-=======
 *.py.cover
->>>>>>> 4b3ed6b83513f03365ce840fbdc5bb76a76ab2af
 .hypothesis/
 .pytest_cache/
 cover/
@@ -110,19 +106,6 @@ ipython_config.py
 #   commonly ignored for libraries.
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
 #poetry.lock
-<<<<<<< HEAD
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-=======
 #poetry.toml
 
 # pdm
@@ -141,7 +124,6 @@ ipython_config.py
 #   in the .venv directory. It is recommended not to include this directory in version control.
 .pixi
 
->>>>>>> 4b3ed6b83513f03365ce840fbdc5bb76a76ab2af
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
@@ -154,10 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
-<<<<<<< HEAD
-=======
 .envrc
->>>>>>> 4b3ed6b83513f03365ce840fbdc5bb76a76ab2af
 .venv
 env/
 venv/
@@ -206,11 +185,7 @@ cython_debug/
 #  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-<<<<<<< HEAD
-#  you could uncomment the following to ignore the enitre vscode folder
-=======
 #  you could uncomment the following to ignore the entire vscode folder
->>>>>>> 4b3ed6b83513f03365ce840fbdc5bb76a76ab2af
 # .vscode/
 
 # Ruff stuff:
@@ -224,13 +199,9 @@ cython_debug/
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
-<<<<<<< HEAD
-.cursorindexingignore
-=======
 .cursorindexingignore
 
 # Marimo
 marimo/_static/
 marimo/_lsp/
 __marimo__/
->>>>>>> 4b3ed6b83513f03365ce840fbdc5bb76a76ab2af

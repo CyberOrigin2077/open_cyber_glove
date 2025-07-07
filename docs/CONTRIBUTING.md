@@ -82,7 +82,7 @@ We use several tools to maintain code quality:
 
 1. **Ruff** for linting and formatting:
    - Line length: 160 characters
-   - Python version: 3.10+
+   - Python version: 3.7+
    - Auto-fixes available for many issues
    - Run: `poetry run ruff check .`
 

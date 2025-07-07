@@ -3,8 +3,7 @@ import struct
 import zlib
 import time
 import numpy as np
-from abc import ABC
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Any, Tuple
 from dataclasses import dataclass
 import threading
 import queue
@@ -35,7 +34,7 @@ class GloveSensorData:
     temperature: float
     timestamp: int
 
-class Glove(ABC):
+class Glove:
     """
     Abstract base class for cyber glove device management.
     

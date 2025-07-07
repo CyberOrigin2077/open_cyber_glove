@@ -29,11 +29,9 @@ if __name__ == "__main__":
         while True:
             # Update poses with timeout protection
             if sdk.left_glove is not None:
-                data = sdk.get_data(hand_type='left')
                 angles = sdk.get_angles(hand_type='left', method='model')                
                 visualizer.update(angles, hand_type='left')
             if sdk.right_glove is not None:
-                data = sdk.get_data(hand_type='right')
                 angles = sdk.get_angles(hand_type='right', method='model')                
                 visualizer.update(angles, hand_type='right')
             

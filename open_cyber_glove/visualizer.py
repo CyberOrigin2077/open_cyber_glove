@@ -60,16 +60,12 @@ class HandVisualizer(BaseHandVisualizer):
             model_path (str): Path to the hand model file.
         """
         super().__init__(model_path)
-        config = self._load_hand_model()
+        self.hand_model = self._load_hand_model()
         
-        self.joint_radius = config.get('joint_radius', 0.005)
-        self.bone_radius = config.get('bone_radius', 0.0025)
-        self.joint_color = config.get('joint_color', [0.9, 0.1, 0.1, 1.0])
-        self.bone_color = config.get('bone_color', [0.1, 0.1, 0.9, 1.0])
-        self.hand_model = config # TODO: fix config here
-        
-        # Command queue for thread-safe communication with the visualization thread
-        self.command_queue = queue.Queue()
+        self.joint_radius = self.hand_model.get('joint_radius', 0.005)
+        self.bone_radius = self.hand_model.get('bone_radius', 0.0025)
+        self.joint_color = self.hand_model.get('joint_color', [0.9, 0.1, 0.1, 1.0])
+        self.bone_color = self.hand_model.get('bone_color', [0.1, 0.1, 0.9, 1.0])
         
         # Visualization objects will be created in the background thread
         self.vis = o3d.visualization.Visualizer()
@@ -126,7 +122,6 @@ class HandVisualizer(BaseHandVisualizer):
         print("Updating left hand...")
         self.update(init_angles, hand_type='left')
         print("Hand model initialization complete")
-        self._hand_model_initialized = True
     
     def update(self, pose: np.ndarray, hand_type: str = 'right') -> None:
         """
