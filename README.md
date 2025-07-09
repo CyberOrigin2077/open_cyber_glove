@@ -12,6 +12,10 @@
 
 An open-source Python SDK for interfacing with data gloves, supporting real-time sensor data acquisition, calibration, and extensible inference. Designed for robotics, VR/AR, and HCI applications.
 
+<div align="center">
+  <img src="docs/imgs/ocg_banner.gif" alt="OpenCyberGlove Banner">
+</div>
+
 ## Features
 - Connect to one or two data gloves via serial port (1Mbps baudrate)
 - Real-time sensor data acquisition at 120Hz
