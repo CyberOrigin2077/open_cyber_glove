@@ -123,19 +123,29 @@ class HandVisualizer(BaseHandVisualizer):
         self.update(init_angles, hand_type='left')
         print("Hand model initialization complete")
     
-    def update(self, pose: np.ndarray, hand_type: str = 'right') -> None:
+    def get_joints(self, pose: np.ndarray, hand_type: str = 'right') -> np.ndarray:
         """
-        Update the visualization with a new hand pose.
+        Get the joints positions for a given hand pose.
         Args:
-            pose (np.ndarray): Array of joint angles (length 20).
+            pose (np.ndarray): Array of joint angles.
             hand_type (str): Type of hand ('left' or 'right').
-        """ 
+        """
         angle_dict = {}
         for i, angle_name in enumerate(DEFAULT_GT_ORDER):
             finger, joint, dof = angle_name.split('_')
             angle_dict.setdefault(finger, {}).setdefault(joint, {})[dof] = pose[i]
         joints, _ = forward_kinematics(self.hand_model[hand_type], angle_dict, hand_type)
         joints = joints / 1000
+        return joints
+    
+    def update(self, pose: np.ndarray, hand_type: str = 'right') -> None:
+        """
+        Update the visualization with a new hand pose.
+        Args:
+            pose (np.ndarray): Array of joint angles.
+            hand_type (str): Type of hand ('left' or 'right').
+        """ 
+        joints = self.get_joints(pose, hand_type)
         
         for idx, pos in enumerate(joints):
             key = f'joint_{hand_type}_{idx}'
@@ -160,7 +170,6 @@ class HandVisualizer(BaseHandVisualizer):
             self._add_bone(key, joints[i], joints[j])
         self.vis.poll_events()
         self.vis.update_renderer()
-
             
     def _add_bone(self, key: str, start: np.ndarray, end: np.ndarray) -> None:
         """
