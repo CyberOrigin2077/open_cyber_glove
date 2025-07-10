@@ -100,6 +100,13 @@ The script will first guide you through the interactive calibration process for 
 
 **Note**: The quality of the visualization **significantly** depends on the model and proper calibration.
 
+### ROS2 Wrapper
+
+For ROS2 integration, we provide a dedicated wrapper package that enables seamless integration with the Robot Operating System 2 (ROS2) ecosystem. This wrapper allows you to publish glove data as ROS2 messages and integrate with other ROS2 nodes.
+
+For detailed installation instructions, usage examples, and available ROS2 message types, please visit our ROS2 wrapper repository:
+[OpenCyberGlove ROS2 Wrapper](https://github.com/CyberOrigin2077/open_cyber_glove_ros2)
+
 ## Data Structure
 The `GloveSensorData` class provides structured access to all sensor data:
 - `tensile_data`: Tuple of 19 integers (0-16384)
