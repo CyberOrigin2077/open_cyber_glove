@@ -1,6 +1,6 @@
 from inspire_hand import InspireHand
-from open_cyber_glove.sdk import OpenCyberGlove
 from inspire_hand.hand import Register
+from open_cyber_glove.sdk import OpenCyberGlove
 import time
 
 def threshold_map(val, angle_min=0, angle_max=1000, threshold=0.8):
@@ -49,10 +49,9 @@ def map_raw_to_angle(raw_data, min_vals, max_vals, angle_min=0, angle_max=1000, 
         sum_val = max(0, min(1, sum_val * coeffs[i]))
         angle = threshold_map(sum_val, angle_min, angle_max, threshold)
         angles.append(angle)
-        print()
     return angles
 
-def main(hand_serial_port="/dev/ttyUSB0", glove_serial_port="/dev/ttyUSB2"):
+def main(hand_serial_port="/dev/ttyUSB1", glove_serial_port="/dev/ttyUSB2"):
     hand = InspireHand(port=hand_serial_port, baudrate=115200)
     hand.open()  
     hand.open_all_fingers()
@@ -76,4 +75,10 @@ def main(hand_serial_port="/dev/ttyUSB0", glove_serial_port="/dev/ttyUSB2"):
         hand.modbus.write_multiple_registers(Register.ANGLE_SET, angles)
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Teleoperation demo for InspireHand and OpenCyberGlove.")
+    parser.add_argument("--hand_serial_port", type=str, default="/dev/ttyUSB1", help="Serial port for InspireHand (default: /dev/ttyUSB1)")
+    parser.add_argument("--glove_serial_port", type=str, default="/dev/ttyUSB2", help="Serial port for OpenCyberGlove (default: /dev/ttyUSB2)")
+    args = parser.parse_args()
+    main(hand_serial_port=args.hand_serial_port, glove_serial_port=args.glove_serial_port)
