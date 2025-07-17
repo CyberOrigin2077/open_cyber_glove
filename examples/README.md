@@ -11,7 +11,7 @@ This directory contains example scripts demonstrating how to use the OpenCyberGl
    Teleoperation: map glove sensor data to control an InspireHand robotic hand in real time.
 
 
-## 1. `hello_world.py`
+## 1. [`hello_world.py`](#1-helloworldpy) 
 
 This script demonstrates basic usage of the OpenCyberGlove SDK, including initialization, calibration, diagnosis, and real-time hand pose visualization.
 
@@ -42,7 +42,7 @@ The script will:
 
 ---
 
-## 2. `teleop_demo.py`
+## 2. [`teleop_demo.py`](#2-teleopdemopy)
 
 This script demonstrates teleoperation: mapping glove sensor data to control an InspireHand robotic hand in real time.
 
