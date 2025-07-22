@@ -118,5 +118,12 @@ The `GloveSensorData` class provides structured access to all sensor data:
 - `temperature`: Float
 - `timestamp`: Integer
 
+## Roadmap
+
+- [x] Core functionality
+- [x] ROS2 wrapper
+- [ ] Glove in simulation
+- [ ] Model finetune pipeline
+
 ## License
 BSD 3-Clause License
