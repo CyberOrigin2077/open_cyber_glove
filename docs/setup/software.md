@@ -34,7 +34,10 @@ The model provided is trained by data collected from many people (with medium si
 
 ## More Examples
 
-Release soon
+- [OpenCyberGlove ROS2](https://github.com/CyberOrigin2077/open_cyber_glove_ros2): ROS2 wrapper for OpenCyberGlove SDK
+- [OpenCyberGlove Retarget ROS2](https://github.com/CyberOrigin2077/open_cyber_glove_retarget_ros2): retarget glove motions to specific dex hands in ROS2
+- Glove in simulation: Release soon
+- Finetune your own joint angle estimation model: Release soon
 
 ## Contributing
 We welcome contributions! See our [Contributing Guide](../CONTRIBUTING.md) for details.

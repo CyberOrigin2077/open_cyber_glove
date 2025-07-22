@@ -107,6 +107,8 @@ For ROS2 integration, we provide a dedicated wrapper package that enables seamle
 For detailed installation instructions, usage examples, and available ROS2 message types, please visit our ROS2 wrapper repository:
 [OpenCyberGlove ROS2 Wrapper](https://github.com/CyberOrigin2077/open_cyber_glove_ros2)
 
+We also offer a dedicated wrapper for retargeting glove motions to specific robotic hands:
+[OpenCyberGlove Retarget ROS2](https://github.com/CyberOrigin2077/open_cyber_glove_retarget_ros2)
 ## Data Structure
 The `GloveSensorData` class provides structured access to all sensor data:
 - `tensile_data`: Tuple of 19 integers (0-16384)
@@ -115,6 +117,13 @@ The `GloveSensorData` class provides structured access to all sensor data:
 - `mag_data`: Tuple of 3 floats (To be added)
 - `temperature`: Float
 - `timestamp`: Integer
+
+## Roadmap
+
+- [x] Core functionality
+- [x] ROS2 wrapper
+- [ ] Glove in simulation
+- [ ] Model finetune pipeline
 
 ## License
 BSD 3-Clause License
