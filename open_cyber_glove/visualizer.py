@@ -1,9 +1,15 @@
 import numpy as np
 import pickle
 import open3d as o3d
+import open3d.visualization.gui as gui
+import open3d.visualization.rendering as rendering
 from abc import ABC, abstractmethod
 from .utils import forward_kinematics, DEFAULT_GT_ORDER
+import torch
 import queue
+import threading
+import time
+from typing import Any
 
 class BaseHandVisualizer(ABC):
     """
@@ -123,18 +129,21 @@ class HandVisualizer(BaseHandVisualizer):
         self.update(init_angles, hand_type='left')
         print("Hand model initialization complete")
     
-    def get_joints(self, pose: np.ndarray, hand_type: str = 'right') -> np.ndarray:
+    def get_joints(self, pose: np.ndarray, hand_type: str = 'right', backend: Any = np, dtype: torch.dtype = torch.float32, device: str = 'cpu') -> np.ndarray:
         """
         Get the joints positions for a given hand pose.
         Args:
             pose (np.ndarray): Array of joint angles.
             hand_type (str): Type of hand ('left' or 'right').
+            backend (str): Backend to use for computation ('numpy' or 'torch').
+            dtype (torch.dtype): Data type for torch backend.
+            device (str): Device for torch backend.
         """
         angle_dict = {}
         for i, angle_name in enumerate(DEFAULT_GT_ORDER):
             finger, joint, dof = angle_name.split('_')
-            angle_dict.setdefault(finger, {}).setdefault(joint, {})[dof] = pose[i]
-        joints, _ = forward_kinematics(self.hand_model[hand_type], angle_dict, hand_type)
+            angle_dict.setdefault(finger, {}).setdefault(joint, {})[dof] = pose[..., i]
+        joints, _ = forward_kinematics(self.hand_model[hand_type], angle_dict, hand_type, backend, dtype, device)
         joints = joints / 1000
         return joints
     
@@ -222,3 +231,82 @@ class HandVisualizer(BaseHandVisualizer):
         Close the visualization viewer.
         """
         self.vis.destroy_window()
+
+    def enable_tuning_panel(self, glove, model, hand_type: str):
+        """
+        Launch an Open3D GUI window with sliders for custom_tuning.
+
+        Args:
+            glove: Glove instance to tune
+            model: ONNX model for inference
+            hand_type: 'left' or 'right'
+        """
+        num_outputs = glove.MODEL_OUTPUT_SIZE
+
+        # Initialize Open3D GUI application
+        gui.Application.instance.initialize()
+        window = gui.Application.instance.create_window(
+            f"Hand Tuning - {hand_type.capitalize()} Glove", 200, 500
+        )
+
+        # Create a vertical panel with margins for sliders and controls
+        panel = gui.Vert(0, gui.Margins(20, 20, 20, 20))
+        sliders = []
+
+        def make_callback(idx):
+            def callback(value):
+                self._on_slider(idx, value, glove)
+            return callback
+
+        for i in range(num_outputs):
+            slider = gui.Slider(gui.Slider.DOUBLE)
+            slider.set_limits(0.7, 1.3)
+            slider.double_value = float(glove.custom_tuning[i])
+            slider.set_on_value_changed(make_callback(i))
+            sliders.append(slider)
+
+            row = gui.Horiz()
+            row.add_child(gui.Label(f"Sensor {i + 1}"))
+            row.add_child(slider)
+            panel.add_child(row)
+
+        def on_reset():
+            for i, slider in enumerate(sliders):
+                slider.double_value = 1.0
+                glove.custom_tuning[i] = 1.0
+
+        reset_btn = gui.Button("Reset All")
+        reset_btn.set_on_clicked(on_reset)
+        panel.add_child(reset_btn)
+
+        window.add_child(panel)
+        panel.frame = gui.Rect(10, 10, 350, 40 * num_outputs)
+
+        running = True
+
+        def update_loop():
+            while running:
+                try:
+                    data = glove.get_data()
+                    angles = glove.inference(data, method='model', model=model)
+                    self.update(angles, hand_type=hand_type)
+                except Exception:
+                    pass
+                time.sleep(1 / 120)  # 120 Hz
+
+        thread = threading.Thread(target=update_loop, daemon=True)
+        thread.start()
+
+        def on_close():
+            nonlocal running
+            running = False
+            gui.Application.instance.quit()
+
+        window.set_on_close(on_close)
+        gui.Application.instance.run()
+
+    def _on_slider(self, idx, value, glove):
+        """
+        Callback for slider value change to update custom_tuning.
+        """
+        glove.custom_tuning[idx] = value

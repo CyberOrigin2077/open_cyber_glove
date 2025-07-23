@@ -19,7 +19,8 @@ dependencies = [
     "tqdm",
     "open3d",
     "scipy",
-    "onnxruntime"
+    "onnxruntime",
+    "torch"
 ]
 
 [project.urls]
