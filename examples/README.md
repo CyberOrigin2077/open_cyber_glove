@@ -10,6 +10,7 @@ This directory contains example scripts demonstrating how to use the OpenCyberGl
 2. [teleop_demo.py](#2-teleopdemopy)  
    Teleoperation: map glove sensor data to control an InspireHand robotic hand in real time.
 
+3. [advanced_calibration.py](#3-advancedcalibrationpy)
 
 ## 1. [`hello_world.py`](#1-helloworldpy) 
 
@@ -71,3 +72,25 @@ The script will:
 **Note:**  
 - Make sure the required dependencies (`open_cyber_glove`, `inspire_hand`) are installed and the serial ports are correctly set for your hardware. Install `inspire_hand` from [inspire_hands](https://github.com/Sentdex/inspire_hands). Due to the implementation inside [inspire_hands](https://github.com/Sentdex/inspire_hands/blob/main/inspire_hand/modbus.py#L129), it can be lagging. For more accurate retargeting, please refer to [open_cyber_glove_retarget_ros2](https://github.com/CyberOrigin2077/open_cyber_glove_retarget_ros2).
 - For more details on calibration and setup, refer to the main project documentation.
+
+## 3. [`advanced_calibration.py`](#3-advancedcalibrationpy)
+
+This script offers an experimental approach to enhance the accuracy of the pinching gesture. If you notice issues with pinching precision, consider running this script to determine whether advanced calibration improves performance. Please follow the interactive instructions provided in the command line.
+
+### Usage
+
+```bash
+python advanced_calibration.py --right_port <RIGHT_GLOVE_SERIAL_PORT> --calib_path <CALIBRATION_MODEL_PATH> --model_path <MODEL_PATH>
+```
+
+#### Arguments
+
+- `--right_port`: Serial port for the right glove (e.g., `/dev/ttyUSB1`). Optional.
+- `--calib_path`: Path to the calibration model (default: `model/hand_model.pkl`).
+- `--model_path`: Path to the inference model (default: `model/best.pth`).
+
+#### Example
+
+```bash
+python advanced_calibration.py --right_port /dev/ttyUSB0 --calib_path model/hand_model.pkl --model_path model/20250703_110909.onnx
+```
