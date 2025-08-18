@@ -107,7 +107,7 @@ class OpenCyberGlove:
         if self.right_glove:
             self.right_glove.calibrate()
 
-    def experimental_advanced_calibrate(self, visualizer: any) -> None:
+    def experimental_advanced_calibrate(self, visualizer: 'HandVisualizer') -> None:
         """
         Experimental advanced calibration method.
 
