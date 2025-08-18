@@ -76,7 +76,7 @@ def rotation_matrix(axis, theta, backend, dtype=None, device=None):
             return Rotation.from_rotvec(axis * theta).as_matrix()
         else:
             # Batch mode: axis (B, 3), theta (B,)
-            return np.stack([Rotation.from_rotvec(a * t).as_matrix() for a, t in zip(axis, theta)], axis=0)
+            return Rotation.from_rotvec(axis * theta[:, np.newaxis]).as_matrix()
     else:
         # Batch
         axis = axis / axis.norm(dim=1, keepdim=True)
