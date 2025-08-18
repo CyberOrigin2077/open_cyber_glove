@@ -18,5 +18,8 @@ if __name__ == "__main__":
     sdk.start()
     sdk.calibrate()
     visualizer = HandVisualizer(args.calib_path)
+if sdk.right_glove:
     visualizer.enable_tuning_panel(sdk.right_glove, sdk.model, hand_type='right')
+else:
+    print("Right glove not connected. Tuning panel will not be shown.")
 
