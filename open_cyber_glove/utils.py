@@ -365,4 +365,4 @@ def load_hand_model(hand_model_path: str) -> dict:
     except FileNotFoundError:
         raise FileNotFoundError(f"Hand model file not found: {hand_model_path}")
     except Exception as e:
-        raise RuntimeError(f"Error loading hand model: {e}") 
+        raise RuntimeError(f"Error loading hand model: {e}")
