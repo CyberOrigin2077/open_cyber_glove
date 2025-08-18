@@ -300,7 +300,7 @@ class Glove:
         self.avg_val = np.array([s / samples_avg for s in sums])
         self.is_calibrated = True
 
-    def data_collection(self, samples_count: int = 500, prompt: str = "Please perform the action you want to collect data for.") -> None:
+    def data_collection(self, samples_count: int = 500, prompt: str = "Please perform the action you want to collect data for.") -> List[GloveSensorData]:
         """Collect data for glove."""
         if self.serial_port is None:
             raise RuntimeError("Serial port not connected.")
