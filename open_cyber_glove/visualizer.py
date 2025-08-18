@@ -290,8 +290,8 @@ class HandVisualizer(BaseHandVisualizer):
                     data = glove.get_data()
                     angles = glove.inference(data, method='model', model=model)
                     self.update(angles, hand_type=hand_type)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"[Error] in visualizer update loop: {e}")
                 time.sleep(1 / 120)  # 120 Hz
 
         thread = threading.Thread(target=update_loop, daemon=True)
