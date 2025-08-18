@@ -3,12 +3,18 @@ import struct
 import zlib
 import time
 import numpy as np
-from typing import Optional, Any, Tuple
+from typing import Optional, Any, Tuple, List
 from dataclasses import dataclass
 import threading
 import queue
 from tqdm import tqdm
 import logging
+
+# for advanced calibration
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from open_cyber_glove.visualizer import HandVisualizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -61,6 +67,7 @@ class Glove:
     TIMESTAMP_OFFSET = 116
     TIMESTAMP_SIZE = 4      # 1 uint32 * 4 bytes
     NUM_TENSILE_SENSORS = 19
+    MODEL_OUTPUT_SIZE = 22
     NUM_IMU_AXES = 3
     SENSOR_MAX_VALUE = 8192 * 2
     DEFAULT_BAUDRATE = 1000000
@@ -82,6 +89,7 @@ class Glove:
         self.min_val = [self.SENSOR_MAX_VALUE] * self.NUM_TENSILE_SENSORS
         self.max_val = [0] * self.NUM_TENSILE_SENSORS
         self.avg_val = [0.0] * self.NUM_TENSILE_SENSORS
+        self.custom_tuning = np.ones(self.MODEL_OUTPUT_SIZE, dtype=np.float32)
         self.is_calibrated = False
         self._data_queue = queue.Queue(maxsize=1200)  # 10 seconds of data at 120 Hz
         self._reader_thread = None
@@ -292,6 +300,57 @@ class Glove:
         self.avg_val = np.array([s / samples_avg for s in sums])
         self.is_calibrated = True
 
+    def data_collection(self, samples_count: int = 500, prompt: str = "Please perform the action you want to collect data for.") -> List[GloveSensorData]:
+        """Collect data for glove."""
+        if self.serial_port is None:
+            raise RuntimeError("Serial port not connected.")
+        # Collect data
+        data = []
+        print(f"[{self.hand_type}] Please follow the instructions, then press Enter: {prompt}")
+        input()
+        for _ in tqdm(range(samples_count), desc=f"[{self.hand_type}] data collection"):
+            data.append(self.get_data())
+        return data
+
+    def advanced_calibrate(self, samples_count: int = 200, model: Optional[Any] = None, vis: Optional[HandVisualizer] = None) -> None:
+        """Advanced calibration for glove. Optimization for pinch."""
+        if self.serial_port is None:
+            raise RuntimeError("Serial port not connected.")
+        print(f"\033[92m[Advanced Calibration] Starting advanced calibration for hand type: {self.hand_type}\033[0m")
+        # Collect data
+        data_batch = []
+        distance_index_set = [[4, 8], [4, 12], [4, 16]]
+        prompts = ["Pinch with index and thumb", "Pinch with middle and thumb", "Pinch with ring and thumb"]
+        for i in range(len(distance_index_set)):
+            data = self.data_collection(samples_count, prompt=prompts[i])
+            angles = torch.from_numpy(self.batch_inference(data, method="model", model=model))
+            data_batch.append(angles)
+        opt_tuning_param = nn.Parameter(torch.ones(self.MODEL_OUTPUT_SIZE, dtype=torch.float32))
+        optimizer = torch.optim.Adam([opt_tuning_param], lr=0.01)
+        lambda_reg = 0.5
+        num_steps = 300  # depending on convergence
+
+        for j in tqdm(range(num_steps)):
+            optimizer.zero_grad()
+            loss = 0
+            for i in range(len(distance_index_set)):
+                angles = data_batch[i]
+                distance_index = distance_index_set[i]
+                joints = vis.get_joints(angles * opt_tuning_param, self.hand_type, backend=torch, dtype=torch.float32, device='cpu')
+                dist = torch.norm(joints[:, distance_index[0]] - joints[:, distance_index[1]], dim=1)
+                main_loss = dist.mean()
+                loss += main_loss
+            reg_loss = F.mse_loss(opt_tuning_param, torch.ones_like(opt_tuning_param))
+            loss += lambda_reg * reg_loss
+            loss.backward()
+            optimizer.step()
+            # Clamp first 16 entries to 0.9-1.1, rest to 0.5-1.5
+            opt_tuning_param.data[:-6].clamp_(0.9, 1.1)
+            opt_tuning_param.data[-6:].clamp_(0.8, 1.2)
+        self.custom_tuning = opt_tuning_param.data.cpu().numpy()
+
+        print(f"\033[92m[Advanced Calibration] Finished advanced calibration for hand type: {self.hand_type}\033[0m")
+
     @staticmethod
     def _sensors_still(current, last, threshold=10) -> bool:
         """
@@ -331,8 +390,24 @@ class Glove:
         elif method == "model":
             if model is None:
                 raise ValueError("Model is required for model-based inference")
-            delta_input = (data.tensile_data - self.avg_val).astype(np.float32)
+            delta_input = (np.array(data.tensile_data) - np.array(self.avg_val)).astype(np.float32)
             outputs = model.run(None, {'input': delta_input[self.SENSOR_ORDER].reshape(1, -1)})
-            return outputs[0][0]
+            return outputs[0][0] * self.custom_tuning
+        else:
+            raise NotImplementedError
+        
+    def batch_inference(self, data: List[GloveSensorData], method: str = "model", model: Optional[Any] = None) -> np.ndarray:
+        """
+        Batch inference for glove.
+        """
+        if method == "linear":
+            raise NotImplementedError
+        elif method == "model":
+            if model is None:
+                raise ValueError("Model is required for model-based inference")
+            batch_tensile_data = np.array([d.tensile_data for d in data])
+            batch_tensile_data = (batch_tensile_data - self.avg_val).astype(np.float32)
+            outputs = model.run(None, {'input': batch_tensile_data[:, self.SENSOR_ORDER]})
+            return outputs[0]
         else:
             raise NotImplementedError

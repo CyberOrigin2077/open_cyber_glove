@@ -1,4 +1,3 @@
-import threading
 from typing import Optional
 from .glove import Glove, GloveSensorData
 import matplotlib.pyplot as plt
@@ -108,6 +107,28 @@ class OpenCyberGlove:
         if self.right_glove:
             self.right_glove.calibrate()
 
+    def experimental_advanced_calibrate(self, visualizer: 'HandVisualizer') -> None:
+        """
+        Experimental advanced calibration method.
+
+        Note:
+            This function is experimental. If you are experiencing issues with pinching accuracy,
+            using this function may help you achieve a more accurate pinching distance.
+
+            Usage:
+                Run this function from your application or script to perform advanced calibration.
+                You will be prompted in the command line to perform specific hand poses (e.g., "Pinch index finger and thumb").
+                Please follow the on-screen instructions and press Enter when ready for each pose.
+                The calibration process will collect data and optimize the glove's pinch accuracy.
+
+            Example:
+                sdk.experimental_advanced_calibrate(visualizer)
+        """
+        if self.left_glove:
+            self.left_glove.advanced_calibrate(samples_count=500, model=self.model, vis=visualizer)
+        if self.right_glove:
+            self.right_glove.advanced_calibrate(samples_count=500, model=self.model, vis=visualizer)
+
     def diagnose(self) -> None:
         """Diagnose all available gloves with an interactive plot."""
         plt.style.use('dark_background')
@@ -155,4 +176,4 @@ class OpenCyberGlove:
         finally:
             plt.ioff()
             plt.close(fig)
-            
+

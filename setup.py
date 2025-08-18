@@ -15,7 +15,8 @@ setup(
         "matplotlib",
         "tqdm",
         "open3d",
-        "onnxruntime"
+        "onnxruntime",
+        "torch"
     ],
     python_requires=">=3.7",
     url="https://github.com/CyberOrigin2077/open-cyber-glove",

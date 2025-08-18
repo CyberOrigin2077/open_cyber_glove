@@ -3,4 +3,5 @@ numpy
 onnxruntime
 matplotlib
 open3d
-scipy 
+scipy
+torch
