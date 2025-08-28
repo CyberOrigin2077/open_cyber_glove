@@ -7,10 +7,13 @@ This directory contains example scripts demonstrating how to use the OpenCyberGl
 1. [hello_world.py](#1-helloworldpy)  
    Basic usage of OpenCyberGlove SDK: initialization, calibration, diagnosis, and real-time hand pose visualization.
 
-2. [teleop_demo.py](#2-teleopdemopy)  
+2. [teleop_demo_inspire.py](#2-teleopdemoinspirepy)  
    Teleoperation: map glove sensor data to control an InspireHand robotic hand in real time.
 
-3. [advanced_calibration.py](#3-advancedcalibrationpy)
+3. [teleop_demo_rohand.py](#3-teleopdemorohandpy)  
+   Teleoperation: map glove sensor data to control a ROHand robotic hand in real time.
+
+4. [advanced_calibration.py](#4-advancedcalibrationpy)
 
 ## 1. [`hello_world.py`](#1-helloworldpy) 
 
@@ -43,14 +46,14 @@ The script will:
 
 ---
 
-## 2. [`teleop_demo.py`](#2-teleopdemopy)
+## 2. [`teleop_demo_inspire.py`](#2-teleopdemoinspirepy)
 
 This script demonstrates teleoperation: mapping glove sensor data to control an InspireHand robotic hand in real time.
 
 ### Usage
 
 ```bash
-python teleop_demo.py --hand_serial_port <INSPIRE_HAND_PORT> --glove_serial_port <GLOVE_PORT>
+python teleop_demo_inspire.py --hand_serial_port <INSPIRE_HAND_PORT> --glove_serial_port <GLOVE_PORT>
 ```
 
 #### Arguments
@@ -61,7 +64,7 @@ python teleop_demo.py --hand_serial_port <INSPIRE_HAND_PORT> --glove_serial_port
 #### Example
 
 ```bash
-python teleop_demo.py --hand_serial_port /dev/ttyUSB1 --glove_serial_port /dev/ttyUSB2
+python teleop_demo_inspire.py --hand_serial_port /dev/ttyUSB1 --glove_serial_port /dev/ttyUSB2
 ```
 
 The script will:
@@ -73,7 +76,37 @@ The script will:
 - Make sure the required dependencies (`open_cyber_glove`, `inspire_hand`) are installed and the serial ports are correctly set for your hardware. Install `inspire_hand` from [inspire_hands](https://github.com/Sentdex/inspire_hands). Due to the implementation inside [inspire_hands](https://github.com/Sentdex/inspire_hands/blob/main/inspire_hand/modbus.py#L129), it can be lagging. For more accurate retargeting, please refer to [open_cyber_glove_retarget_ros2](https://github.com/CyberOrigin2077/open_cyber_glove_retarget_ros2).
 - For more details on calibration and setup, refer to the main project documentation.
 
-## 3. [`advanced_calibration.py`](#3-advancedcalibrationpy)
+## 3. [`teleop_demo_rohand.py`](#3-teleopdemorohandpy)
+
+This script demonstrates teleoperation: mapping glove sensor data to control a ROHand from OYMotion in real time.
+
+### Usage
+
+```bash
+python teleop_demo_rohand.py --hand_serial_port <ROHAND_PORT> --glove_serial_port <GLOVE_PORT>
+```
+
+#### Arguments
+
+- `--hand_serial_port`: Serial port for ROHand (default: `/dev/ttyUSB1`)
+- `--glove_serial_port`: Serial port for OpenCyberGlove (default: `/dev/ttyUSB0`)
+
+#### Example
+
+```bash
+python teleop_demo_rohand.py --hand_serial_port /dev/ttyUSB1 --glove_serial_port /dev/ttyUSB0
+```
+
+The script will:
+- Connect to the ROHand and OpenCyberGlove devices
+- Calibrate the glove
+- Continuously read glove sensor data, map it to finger angles, and send commands to the ROHand for real-time teleoperation
+
+**Note:**  
+- Make sure the required dependencies (`open_cyber_glove`, `pymodbus`, `pyserial`) are installed and the serial ports are correctly set for your hardware.
+- For more details on calibration and setup, refer to the main project documentation.
+
+## 4. [`advanced_calibration.py`](#4-advancedcalibrationpy)
 
 This script offers an experimental approach to enhance the accuracy of the pinching gesture. If you notice issues with pinching precision, consider running this script to determine whether advanced calibration improves performance. Please follow the interactive instructions provided in the command line.
 
