@@ -1,14 +1,14 @@
 import asyncio
 import signal
+import argparse
 from typing import List, Optional
-
 from pymodbus import FramerType
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
 from serial.tools import list_ports
-
 from open_cyber_glove.sdk import OpenCyberGlove
 
+# modbus registers for ROHand
 ROH_FINGER_SPEED0 = (1125) # Borrow from https://github.com/oymotion/roh_demos/blob/main/glove_ctrled_rohand/roh_registers_v1.py
 ROH_FINGER_POS_TARGET0 = (1135)
 
@@ -225,8 +225,6 @@ class OpenCyberGloveRoHandDemo:
 
 
 def main():
-    import argparse
-
     parser = argparse.ArgumentParser(description="Control ROHand with OpenCyberGlove")
     parser.add_argument(
         "--glove_serial_port",
