@@ -68,31 +68,11 @@ class OpenCyberGloveRoHandDemo:
                 return port.device
         return None
 
-    @staticmethod
-    def threshold_map(val: float, angle_min: float = 0, angle_max: float = 1000, threshold: float = 0.8) -> float:
-        """
-        Map a normalized value to an angle, applying a threshold.
-
-        Args:
-            val: Normalized value [0, 1].
-            angle_min: Minimum angle.
-            angle_max: Maximum angle.
-            threshold: Threshold for mapping.
-
-        Returns:
-            Mapped angle.
-        """
-        if val >= threshold:
-            return angle_max
-        # Linear interpolation for values below threshold
-        return float((val - (1 - threshold)) / (2 * threshold - 1) * (angle_max - angle_min) + angle_min)
-
     def map_raw_to_angle(
         self,
         raw_data: List[float],
         min_vals: List[float],
         max_vals: List[float],
-        threshold: float = 0.6,
         coeffs: Optional[List[float]] = None,
     ) -> List[int]:
         """
@@ -102,7 +82,6 @@ class OpenCyberGloveRoHandDemo:
             raw_data: Raw sensor data.
             min_vals: Minimum calibration values for each sensor.
             max_vals: Maximum calibration values for each sensor.
-            threshold: Threshold for mapping.
             coeffs: Optional scaling coefficients for each finger.
 
         Returns:
@@ -128,21 +107,10 @@ class OpenCyberGloveRoHandDemo:
             [1.0],     # Thumb rotation
         ]
 
-        # Output angle ranges for each finger
-        output_ranges = [
-            (-12.69, 36),   # Thumb
-            (90, 180),      # Index
-            (90, 180),      # Middle
-            (90, 180),      # Ring
-            (90, 180),      # Pinky
-            (0, 90),        # Thumb rotation
-        ]
-
         if coeffs is None:
             coeffs = [1.0] * 6
 
         angles = []
-        raw_angles = []
         for i, group in enumerate(sensor_groups):
             vals = []
             weights = sensor_weights[i]
@@ -159,13 +127,6 @@ class OpenCyberGloveRoHandDemo:
             sum_weights = sum(weights)
             sum_val = sum(vals) / sum_weights if sum_weights != 0 else 0.0
             sum_val = clamp(sum_val * coeffs[i], 0, 1)
-
-            angle_min, angle_max = output_ranges[i]
-            angle = self.threshold_map(sum_val, angle_min, angle_max, threshold)
-            raw_angles.append(angle)
-            if i == len(sensor_groups) - 1:
-                # For thumb rotation, invert the angle
-                angle = 90 - angle
             angles.append(int(65535 - sum_val * 65535))
         return angles
 
