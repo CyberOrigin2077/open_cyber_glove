@@ -173,9 +173,7 @@ The `.pkl` holds a plain dict (numpy arrays + metadata; it does **not** pickle `
 
 ```python
 {
-  'format_version': 1,
   'fps': 120,
-  'prompt': "...",
   'created_at': "YYYY-MM-DD HH:MM:SS",
   'hands': {
     'left': {                       # and/or 'right'

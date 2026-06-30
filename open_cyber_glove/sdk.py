@@ -8,7 +8,6 @@ import numpy as np
 import onnxruntime as ort
 from tqdm import tqdm
 
-RECORDING_FORMAT_VERSION = 1
 DEFAULT_SAMPLING_RATE_HZ = 120
 
 
@@ -378,7 +377,6 @@ class OpenCyberGlove:
         self,
         recordings: Dict[str, List[GloveSensorData]],
         path: str,
-        prompt: Optional[str] = None,
         metadata: Optional[dict] = None,
     ) -> str:
         """
@@ -391,7 +389,6 @@ class OpenCyberGlove:
         Args:
             recordings: Output of :meth:`collect_data` (hand name -> frame list).
             path: Destination ``.pkl`` path (parent directories are created).
-            prompt: Optional prompt/label describing the recorded action.
             metadata: Optional extra metadata to store under the ``metadata`` key.
 
         Returns:
@@ -418,9 +415,7 @@ class OpenCyberGlove:
             hands[name] = hand_payload
 
         payload = {
-            'format_version': RECORDING_FORMAT_VERSION,
             'fps': DEFAULT_SAMPLING_RATE_HZ,
-            'prompt': prompt,
             'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
             'hands': hands,
             'metadata': metadata or {},
@@ -452,7 +447,7 @@ class OpenCyberGlove:
             wait_for_enter=wait_for_enter,
             stall_timeout=stall_timeout,
         )
-        return self.save_data(recordings, path, prompt=prompt, metadata=metadata)
+        return self.save_data(recordings, path, metadata=metadata)
 
     def diagnose(self) -> None:
         """Diagnose all available gloves with an interactive plot."""
