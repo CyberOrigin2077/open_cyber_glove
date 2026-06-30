@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# OpenCyberGlove: downloaded models, recorded data, and OS cruft
+model/
+recordings/
+.DS_Store

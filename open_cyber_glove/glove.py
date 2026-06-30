@@ -71,6 +71,7 @@ class Glove:
     NUM_IMU_AXES = 3
     SENSOR_MAX_VALUE = 8192 * 2
     DEFAULT_BAUDRATE = 1000000
+    READ_TIMEOUT = 5.0  # seconds to wait for data before assuming the stream stalled
     SENSOR_ORDER = [3, 1, 0, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 2, 7, 11, 15]
 
     def __init__(self, hand_type: str):
@@ -135,6 +136,15 @@ class Glove:
         if self._reader_thread is not None:
             self._reader_thread.join()
             self._reader_thread = None
+        # Release the serial device so the port can be reopened by a later
+        # connect()/start(); otherwise it stays locked for the process lifetime
+        # and a second start() raises "device or resource busy".
+        if self.serial_port is not None:
+            try:
+                self.serial_port.close()
+            except Exception as e:
+                logger.error(f"Error closing serial port: {e}")
+            self.serial_port = None
 
     def _reader_loop(self):
         """
@@ -195,24 +205,40 @@ class Glove:
                 logger.error(f"Error in reader loop: {e}")
                 time.sleep(0.01)
 
-    def get_raw_data(self) -> bytes:
+    def get_raw_data(self, timeout: Optional[float] = None) -> bytes:
         """
         Retrieve the most recent raw data packet from the queue.
-        
+
+        Args:
+            timeout: Maximum seconds to wait for a packet. None waits indefinitely.
+
         Returns:
             The most recent complete data packet as bytes
-            
+
         Raises:
-            RuntimeError: If the serial port is not connected
-            
+            RuntimeError: If the serial port is not connected, the reader thread is
+                not running, or no data arrives within ``timeout`` seconds.
+
         Note:
-            This method blocks until at least one data packet is available.
-            It drains all packets from the queue and returns only the most recent one.
+            This method blocks until at least one data packet is available (or the
+            timeout expires). It drains all packets from the queue and returns only
+            the most recent one.
         """
         if self.serial_port is None:
             raise RuntimeError("Serial port not connected.")
+        if self._reader_thread is None or not self._reader_thread.is_alive():
+            raise RuntimeError(
+                "Reader thread is not running. Call start_reader() "
+                "(or OpenCyberGlove.start()) before reading data."
+            )
+        deadline = (time.time() + timeout) if timeout is not None else None
         # Wait for at least one data packet
         while self._data_queue.empty():
+            if deadline is not None and time.time() >= deadline:
+                raise RuntimeError(
+                    f"No data received within {timeout:.1f}s "
+                    f"(glove stalled or disconnected?)."
+                )
             time.sleep(0.001)
         # Drain all but the last
         with self._queue_lock:
@@ -256,10 +282,135 @@ class Glove:
         except struct.error as e:
             raise ValueError(f"Failed to parse raw data: {e}")
         
-    def get_data(self) -> GloveSensorData:
+    def get_data(self, timeout: Optional[float] = None) -> GloveSensorData:
         """Get the most recent parsed sensor data from the glove."""
-        raw_data = self.get_raw_data()
+        raw_data = self.get_raw_data(timeout=timeout)
         return self.parse_raw_data(raw_data)
+
+    def get_all_raw_data(self) -> List[bytes]:
+        """
+        Drain and return every buffered raw packet in arrival order.
+
+        Unlike :meth:`get_raw_data`, which discards all but the most recent packet,
+        this method returns the complete backlog so no frames are lost. This is the
+        primitive used by frame-complete recording.
+
+        Returns:
+            A list of raw packets (oldest first). Empty if no data is buffered.
+
+        Raises:
+            RuntimeError: If the serial port is not connected.
+        """
+        if self.serial_port is None:
+            raise RuntimeError("Serial port not connected.")
+        with self._queue_lock:
+            raws = []
+            while not self._data_queue.empty():
+                raws.append(self._data_queue.get())
+        return raws
+
+    def get_all_data(self) -> List[GloveSensorData]:
+        """
+        Drain and parse every buffered packet in arrival order (frame-complete).
+
+        Returns:
+            A list of parsed :class:`GloveSensorData` (oldest first). Empty if no
+            data is buffered. Does not block.
+        """
+        return [self.parse_raw_data(raw) for raw in self.get_all_raw_data()]
+
+    def flush(self) -> None:
+        """
+        Discard all packets currently buffered in the queue.
+
+        Call this right before a fresh recording so the first captured frames
+        correspond to when recording actually starts — not data that accumulated
+        earlier (e.g. while the operator was reading a prompt). Safe to call while
+        the reader thread is running.
+        """
+        with self._queue_lock:
+            while not self._data_queue.empty():
+                try:
+                    self._data_queue.get_nowait()
+                except queue.Empty:
+                    break
+
+    def record(
+        self,
+        samples_count: Optional[int] = 500,
+        duration: Optional[float] = None,
+        prompt: Optional[str] = "Please perform the action you want to record.",
+        wait_for_enter: bool = True,
+        stall_timeout: Optional[float] = 5.0,
+    ) -> List[GloveSensorData]:
+        """
+        Frame-complete recording from this glove.
+
+        Unlike :meth:`data_collection` / :meth:`get_data` (which return only the most
+        recent frame per call and therefore drop intermediate packets), this method
+        drains every buffered packet in arrival order, so no frames are lost as long
+        as the queue is serviced faster than it fills (a ~1200-frame / 10 s buffer at
+        120 Hz).
+
+        Recording stops when ``samples_count`` frames have been collected or
+        ``duration`` seconds have elapsed, whichever comes first. At least one of the
+        two limits must be provided.
+
+        Args:
+            samples_count: Target number of frames to record (None to record purely
+                by duration).
+            duration: Maximum recording duration in seconds (None to record purely by
+                frame count).
+            prompt: Instruction shown to the operator before recording starts.
+            wait_for_enter: If True, wait for the operator to press Enter before
+                recording (set False for programmatic/non-interactive recording).
+            stall_timeout: If no new frames arrive for this many seconds, stop early
+                and keep what was collected (guards against an infinite wait when the
+                stream stalls/disconnects). None disables the watchdog.
+
+        Returns:
+            List of parsed :class:`GloveSensorData`, oldest first.
+
+        Raises:
+            RuntimeError: If the serial port is not connected.
+            ValueError: If neither ``samples_count`` nor ``duration`` is provided.
+        """
+        if self.serial_port is None:
+            raise RuntimeError("Serial port not connected.")
+        if samples_count is None and duration is None:
+            raise ValueError("Provide at least one of samples_count or duration.")
+        if prompt is not None and wait_for_enter:
+            print(f"[{self.hand_type}] Press Enter to start recording: {prompt}")
+            input()
+
+        # Drop frames buffered before recording starts (e.g. while the operator
+        # was reading the prompt) so frame 0 is a post-start sample.
+        self.flush()
+
+        frames: List[GloveSensorData] = []
+        start = time.time()
+        last_data = start
+        with tqdm(total=samples_count, desc=f"[{self.hand_type}] recording") as pbar:
+            while True:
+                if samples_count is not None and len(frames) >= samples_count:
+                    break
+                if duration is not None and (time.time() - start) >= duration:
+                    break
+                batch = self.get_all_data()
+                if batch:
+                    if samples_count is not None:
+                        batch = batch[: samples_count - len(frames)]
+                    frames.extend(batch)
+                    pbar.update(len(batch))
+                    last_data = time.time()
+                else:
+                    if stall_timeout is not None and (time.time() - last_data) >= stall_timeout:
+                        print(f"\n[{self.hand_type}] WARNING: no data for "
+                              f"{stall_timeout:.0f}s — stopping early (stream stalled "
+                              f"or disconnected). Keeping {len(frames)} frames.")
+                        break
+                    time.sleep(0.001)
+        return frames
 
     def calibrate(self, samples_min_max: int = 1000, samples_avg: int = 1000) -> None:
         """Calibrate the glove (min/max and static average)."""
@@ -271,7 +422,7 @@ class Glove:
         print(f"[{self.hand_type}] Calibration Pose 1: Make a fist and open your hand, multiple times. Press Enter to continue...")
         input()
         for i in tqdm(range(samples_min_max), desc=f"[{self.hand_type}] min/max calibration"):
-            data = self.get_data()
+            data = self.get_data(timeout=self.READ_TIMEOUT)
             for j in range(self.NUM_TENSILE_SENSORS):
                 v = data.tensile_data[j]
                 if v < self.min_val[j]:
@@ -287,7 +438,7 @@ class Glove:
         collected = 0
         with tqdm(total=samples_avg, desc=f"[{self.hand_type}] static avg calibration") as pbar:
             while collected < samples_avg:
-                data = self.get_data()
+                data = self.get_data(timeout=self.READ_TIMEOUT)
                 current = data.tensile_data
                 if last is not None and not self._sensors_still(current, last, threshold=10):
                     continue
@@ -309,7 +460,7 @@ class Glove:
         print(f"[{self.hand_type}] Please follow the instructions, then press Enter: {prompt}")
         input()
         for _ in tqdm(range(samples_count), desc=f"[{self.hand_type}] data collection"):
-            data.append(self.get_data())
+            data.append(self.get_data(timeout=self.READ_TIMEOUT))
         return data
 
     def advanced_calibrate(self, samples_count: int = 200, model: Optional[Any] = None, vis: Optional[HandVisualizer] = None) -> None:
@@ -411,3 +562,76 @@ class Glove:
             return outputs[0]
         else:
             raise NotImplementedError
+
+
+def glove_data_to_arrays(data: List[GloveSensorData]) -> dict:
+    """
+    Pack a sequence of :class:`GloveSensorData` frames into a dict of numpy arrays.
+
+    This is the storage-friendly representation used when persisting recordings: it
+    is decoupled from the ``GloveSensorData`` class definition (so saved files do not
+    break if the dataclass changes) and is trivially loadable with plain numpy.
+
+    Args:
+        data: List of parsed sensor frames (oldest first).
+
+    Returns:
+        Dict with keys ``num_frames``, ``tensile`` (N, 19) int32, ``acc`` / ``gyro`` /
+        ``mag`` (N, 3) float32, ``temperature`` (N,) float32 and ``timestamp`` (N,)
+        uint32. Empty arrays with the correct shape are returned for an empty input.
+    """
+    n = len(data)
+    if n == 0:
+        return {
+            'num_frames': 0,
+            'tensile': np.empty((0, Glove.NUM_TENSILE_SENSORS), dtype=np.int32),
+            'acc': np.empty((0, Glove.NUM_IMU_AXES), dtype=np.float32),
+            'gyro': np.empty((0, Glove.NUM_IMU_AXES), dtype=np.float32),
+            'mag': np.empty((0, Glove.NUM_IMU_AXES), dtype=np.float32),
+            'temperature': np.empty((0,), dtype=np.float32),
+            'timestamp': np.empty((0,), dtype=np.uint32),
+        }
+    return {
+        'num_frames': n,
+        'tensile': np.array([d.tensile_data for d in data], dtype=np.int32),
+        'acc': np.array([d.acc_data for d in data], dtype=np.float32),
+        'gyro': np.array([d.gyro_data for d in data], dtype=np.float32),
+        'mag': np.array([d.mag_data for d in data], dtype=np.float32),
+        'temperature': np.array([d.temperature for d in data], dtype=np.float32),
+        'timestamp': np.array([d.timestamp for d in data], dtype=np.uint32),
+    }
+
+
+def arrays_to_glove_data(hand_payload: dict) -> List[GloveSensorData]:
+    """
+    Reconstruct a list of :class:`GloveSensorData` frames from the array dict
+    produced by :func:`glove_data_to_arrays` (the inverse operation).
+
+    This lets a saved recording be fed back through the inference pipeline
+    (e.g. :meth:`Glove.batch_inference`) for offline replay / visualization.
+
+    Args:
+        hand_payload: A per-hand dict from a loaded recording (keys ``num_frames``,
+            ``tensile``, ``acc``, ``gyro``, ``mag``, ``temperature``, ``timestamp``).
+
+    Returns:
+        List of :class:`GloveSensorData`, oldest first.
+    """
+    n = int(hand_payload.get('num_frames', 0))
+    tensile = hand_payload['tensile']
+    acc = hand_payload['acc']
+    gyro = hand_payload['gyro']
+    mag = hand_payload['mag']
+    temperature = hand_payload['temperature']
+    timestamp = hand_payload['timestamp']
+    frames = []
+    for i in range(n):
+        frames.append(GloveSensorData(
+            tensile_data=tuple(int(v) for v in tensile[i]),
+            acc_data=tuple(float(v) for v in acc[i]),
+            gyro_data=tuple(float(v) for v in gyro[i]),
+            mag_data=tuple(float(v) for v in mag[i]),
+            temperature=float(temperature[i]),
+            timestamp=int(timestamp[i]),
+        ))
+    return frames

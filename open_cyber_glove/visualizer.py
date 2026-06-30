@@ -59,23 +59,29 @@ class HandVisualizer(BaseHandVisualizer):
         (0, 17), (17, 18), (18, 19), (19, 20)
     ]
 
-    def __init__(self, model_path: str):
+    def __init__(self, model_path: str, create_window: bool = True):
         """
         Initialize the HandVisualizer with hand model data.
         Args:
             model_path (str): Path to the hand model file.
+            create_window (bool): If True, open an Open3D render window. Set False to
+                use the visualizer purely for kinematics (e.g. :meth:`get_joints`)
+                without any GUI — useful for headless use or an alternative renderer
+                (e.g. matplotlib) on platforms where Open3D's window backend fails.
         """
         super().__init__(model_path)
         self.hand_model = self._load_hand_model()
-        
+
         self.joint_radius = self.hand_model.get('joint_radius', 0.005)
         self.bone_radius = self.hand_model.get('bone_radius', 0.0025)
         self.joint_color = self.hand_model.get('joint_color', [0.9, 0.1, 0.1, 1.0])
         self.bone_color = self.hand_model.get('bone_color', [0.1, 0.1, 0.9, 1.0])
-        
-        # Visualization objects will be created in the background thread
-        self.vis = o3d.visualization.Visualizer()
-        self.vis.create_window()
+
+        # The render window is optional (skip it for headless kinematics use).
+        self.vis = None
+        if create_window:
+            self.vis = o3d.visualization.Visualizer()
+            self.vis.create_window()
         self.node_map = {}
         
     def _load_hand_model(self) -> dict:
@@ -230,7 +236,8 @@ class HandVisualizer(BaseHandVisualizer):
         """
         Close the visualization viewer.
         """
-        self.vis.destroy_window()
+        if self.vis is not None:
+            self.vis.destroy_window()
 
     def enable_tuning_panel(self, glove, model, hand_type: str):
         """
